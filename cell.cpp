@@ -1,6 +1,6 @@
 #include "cell.h"
 
-Cell::Cell()
+Cell::Cell(QWidget *parent) : QWidget(parent)
 {
     point.x = 0;
     point.y = 0;
@@ -8,7 +8,7 @@ Cell::Cell()
     nextState = false;
 }
 
-Cell::Cell(int x, int y)
+Cell::Cell(int x, int y, QWidget *parent) : QWidget(parent)
 {
     point.x = x;
     point.y = y;
@@ -16,12 +16,16 @@ Cell::Cell(int x, int y)
     nextState = false;
 }
 
-Cell::Cell(int x, int y, bool _alive)
-{
-    point.x = x;
-    point.y = y;
-    alive = _alive;
-    nextState = false;
+//Cell::Cell(int x, int y, bool _alive)
+//{
+//    point.x = x;
+//    point.y = y;
+//    alive = _alive;
+//    nextState = false;
+//}
+
+Cell::~Cell() {
+
 }
 
 bool Cell::getAlive() {
@@ -44,7 +48,13 @@ Point Cell::getPoint() {
     return point;
 }
 
-bool Cell::operator==(Cell cell) {
-    if (point.x == cell.getPoint().x && point.y == cell.getPoint().y) return true;
+void Cell::mousePressEvent(QMouseEvent *event)
+{
+    std::cout << point.x << "," << point.y  << " clicked" << std::endl;
+    emit clicked(this);
+}
+
+bool Cell::operator==(Cell *cell) {
+    if (point.x == cell->getPoint().x && point.y == cell->getPoint().y) return true;
     else return false;
 }

@@ -2,6 +2,8 @@
 #define GAMEWINDOW_H
 
 #include <QMainWindow>
+#include "cell.h"
+#include "gameviewmodel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class GameWindow; }
@@ -17,5 +19,11 @@ public:
 
 private:
     Ui::GameWindow *ui;
+    GameViewModel viewModel;
+
+public slots:
+    void toggleAlive(Cell *cell);
+    void playStop();
+    void resetClear();
 };
 #endif // GAMEWINDOW_H

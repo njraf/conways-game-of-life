@@ -90,7 +90,7 @@ padding: 5px;
 </string>
        </property>
        <property name="text">
-        <string>Reset</string>
+        <string>Clear</string>
        </property>
       </widget>
      </item>

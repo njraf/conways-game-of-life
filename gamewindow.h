@@ -24,6 +24,7 @@ private:
 public slots:
     void toggleAlive(Cell *cell);
     void playStop();
+    void next();
     void resetClear();
 };
 #endif // GAMEWINDOW_H

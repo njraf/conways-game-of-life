@@ -30,8 +30,10 @@ public:
 
     void play();
     void stop();
+    void next();
     void reset();
     void clear();
+
 };
 
 #endif // GAMEVIEWMODEL_H

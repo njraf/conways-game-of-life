@@ -151,6 +151,10 @@ void GameViewModel::stop() {
     playing = false;
 }
 
+void GameViewModel::next() {
+    tick();
+}
+
 void GameViewModel::reset() { //TODO: delete cells?
     turn = 0;
     liveCells.clear();

@@ -9,6 +9,7 @@ GameWindow::GameWindow(QWidget *parent)
 
     connect(ui->playButton, SIGNAL(clicked()), this, SLOT(playStop()));
     connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(resetClear()));
+    connect(ui->nextButton, SIGNAL(clicked()), this, SLOT(next()));
 
     //viewModel.placeCell(new Cell(0,0));
     //viewModel.placeCell(new Cell(-1,0));
@@ -63,6 +64,10 @@ void GameWindow::playStop() {
         ui->playButton->setText("Stop");
         ui->resetButton->setText("Reset");
     }
+}
+
+void GameWindow::next() {
+    viewModel.next();
 }
 
 void GameWindow::resetClear() {

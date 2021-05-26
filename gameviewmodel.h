@@ -3,10 +3,12 @@
 
 #include <iostream>
 #include <vector>
+#include <QThread>
 #include "cell.h"
 
-class GameViewModel
+class GameViewModel : public QThread
 {
+    Q_OBJECT
 private:
     std::vector<Cell*> liveCells;
     std::vector<Cell*> pendingCells;
@@ -18,6 +20,7 @@ private:
 public:
     GameViewModel();
     ~GameViewModel();
+    void run() override;
     void tick(); // one frame of game loop
     void determineNextState(); // determines value of Cell*.nextState
     void draw(); // sets Square.alive to Cell*.nextState
@@ -29,11 +32,16 @@ public:
     int getTurn();
 
     void play();
-    void stop();
     void next();
     void reset();
     void clear();
 
+signals:
+    void nextTurn(QString turn);
+
+public slots:
+    void setSpeed(int speed);
+    void stop();
 };
 
 #endif // GAMEVIEWMODEL_H

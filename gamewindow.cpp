@@ -10,6 +10,8 @@ GameWindow::GameWindow(QWidget *parent)
     connect(ui->playButton, SIGNAL(clicked()), this, SLOT(playStop()));
     connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(resetClear()));
     connect(ui->nextButton, SIGNAL(clicked()), this, SLOT(next()));
+    connect(&viewModel, SIGNAL(nextTurn(QString)), ui->turnCounter, SLOT(setText(QString)));
+    connect(ui->speedSlider, SIGNAL(valueChanged(int value)), &viewModel, SLOT(setSpeed(int speed)));
 
     //viewModel.placeCell(new Cell(0,0));
     //viewModel.placeCell(new Cell(-1,0));
@@ -18,6 +20,8 @@ GameWindow::GameWindow(QWidget *parent)
     //viewModel.printLiveCells();
 
     const int DIMENSIONS = 10;
+    ui->board->setRowCount(DIMENSIONS);
+    ui->board->setColumnCount(DIMENSIONS);
 
     for (int y = 0; y < DIMENSIONS; y++) {
         for (int x = 0; x < DIMENSIONS; x++) {
@@ -28,7 +32,7 @@ GameWindow::GameWindow(QWidget *parent)
 
             QObject::connect(cell, SIGNAL(clicked(Cell*)), this, SLOT(toggleAlive(Cell*)));
 
-            ui->board->addWidget(cell, x, y);
+            ui->board->setCellWidget(x, y, cell);
             //viewModel.placeCell((Cell*)cell);
         }
     }
@@ -49,10 +53,12 @@ GameWindow::~GameWindow()
 
 void GameWindow::toggleAlive(Cell *cell) {
     //QWidget *cell2 = new Cell(cell->getPoint().x, cell->getPoint().y);
-    Cell *item = (Cell*)ui->board->itemAtPosition(cell->getPoint().x, cell->getPoint().y)->widget();
-    QString styleSheet = item->styleSheet();
+    Cell *item = (Cell*)ui->board->cellWidget(cell->getPoint().x, cell->getPoint().y);
+
+    QWidget *wid = (QWidget*)cell;
+    QString styleSheet = wid->styleSheet();
     styleSheet += "background-color: yellow";
-    item->setStyleSheet(styleSheet);
+    wid->setStyleSheet(styleSheet);
 }
 
 void GameWindow::playStop() {
@@ -68,18 +74,24 @@ void GameWindow::playStop() {
 
 void GameWindow::next() {
     viewModel.next();
+    ui->resetButton->setText("Reset");
 }
 
 void GameWindow::resetClear() {
-    if (viewModel.getTurn() == 0) {
+    if (viewModel.getTurn() > 0) {
         viewModel.reset();
+        ui->turnCounter->setText("0");
         if (!viewModel.isPlaying()) {
             ui->resetButton->setText("Clear");
         }
     } else {
         viewModel.clear();
-        ui->resetButton->setText("Reset");
     }
+}
+
+void GameWindow::closeEvent(QCloseEvent *event) {
+    std::cout << "close" << std::endl;
+    viewModel.stop();
 }
 
 

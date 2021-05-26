@@ -16,6 +16,7 @@ class GameWindow : public QMainWindow
 public:
     GameWindow(QWidget *parent = nullptr);
     ~GameWindow();
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     Ui::GameWindow *ui;

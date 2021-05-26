@@ -17,11 +17,20 @@ GameViewModel::~GameViewModel() {
     }
 }
 
+void GameViewModel::run() {
+    while (playing) {
+        tick();
+        msleep(1000 - 100 * gameSpeed);
+    }
+}
+
 void GameViewModel::tick() {
     turn++;
     determineNextState();
     draw();
     printLiveCells();
+
+    emit nextTurn(QString::number(turn));
 }
 
 void GameViewModel::determineNextState() {
@@ -138,17 +147,32 @@ int GameViewModel::getTurn() {
     return turn;
 }
 
+void GameViewModel::setSpeed(int speed) {
+    gameSpeed = speed;
+}
+
+
+
+
+
 
 void GameViewModel::play() { //TODO: delete cells?
+    if (isRunning()) {
+        return;
+    }
     playing = true;
     initialCells.clear();
     for (int i = 0; i < liveCells.size(); i++) {
         initialCells.push_back(liveCells[i]);
     }
+
+    start();
 }
 
 void GameViewModel::stop() {
     playing = false;
+    wait(300);
+    quit();
 }
 
 void GameViewModel::next() {
@@ -161,6 +185,7 @@ void GameViewModel::reset() { //TODO: delete cells?
     for (int i = 0; i < initialCells.size(); i++) {
         liveCells.push_back(initialCells[i]);
     }
+    emit nextTurn(QString::number(turn));
 }
 
 void GameViewModel::clear() { //TODO: delete cells?

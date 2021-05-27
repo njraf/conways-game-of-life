@@ -1,5 +1,8 @@
 #include "cell.h"
 
+#include <QStyleOption>
+#include <QPainter>
+
 Cell::Cell(QWidget *parent) : QWidget(parent)
 {
     point.x = 0;
@@ -53,6 +56,14 @@ void Cell::mousePressEvent(QMouseEvent *event)
     std::cout << point.x << "," << point.y  << " clicked" << std::endl;
     emit clicked(this);
 }
+
+void Cell::paintEvent(QPaintEvent *)
+     {
+         QStyleOption opt;
+         opt.init(this);
+         QPainter p(this);
+         style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+     }
 
 bool Cell::operator==(Cell *cell) {
     if (point.x == cell->getPoint().x && point.y == cell->getPoint().y) return true;

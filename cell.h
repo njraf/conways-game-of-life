@@ -31,6 +31,7 @@ public:
     bool getNextState();
     void setNextState(bool _state);
     Point getPoint();
+    void paintEvent(QPaintEvent *) override;
 
     bool operator==(Cell *cell);
 

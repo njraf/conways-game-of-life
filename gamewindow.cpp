@@ -11,39 +11,23 @@ GameWindow::GameWindow(QWidget *parent)
     connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(resetClear()));
     connect(ui->nextButton, SIGNAL(clicked()), this, SLOT(next()));
     connect(&viewModel, SIGNAL(nextTurn(QString)), ui->turnCounter, SLOT(setText(QString)));
-    connect(ui->speedSlider, SIGNAL(valueChanged(int value)), &viewModel, SLOT(setSpeed(int speed)));
-
-    //viewModel.placeCell(new Cell(0,0));
-    //viewModel.placeCell(new Cell(-1,0));
-    //viewModel.placeCell(new Cell(0,1));
-    //viewModel.placeCell(new Cell(0,-1));
-    //viewModel.printLiveCells();
+    //connect(ui->speedSlider, SIGNAL(valueChanged(int value)), &viewModel, SLOT(setSpeed(int speed)));
 
     const int DIMENSIONS = 10;
-    ui->board->setRowCount(DIMENSIONS);
-    ui->board->setColumnCount(DIMENSIONS);
-
     for (int y = 0; y < DIMENSIONS; y++) {
         for (int x = 0; x < DIMENSIONS; x++) {
-            QWidget *cell = new Cell(x, y, this);
+            QWidget *cell = new Cell(x, y, ui->centralwidget);
             QString styleSheet = cell->styleSheet();
-            styleSheet += "background-color: red; border-color: solid green 2px"; // #DCDCDC
+            styleSheet += "background-color: #DCDCDC;";
             cell->setStyleSheet(styleSheet);
 
             QObject::connect(cell, SIGNAL(clicked(Cell*)), this, SLOT(toggleAlive(Cell*)));
 
-            ui->board->setCellWidget(x, y, cell);
-            //viewModel.placeCell((Cell*)cell);
+            ui->board->addWidget(cell, x, y);
         }
     }
     viewModel.printLiveCells();
 
-
-    int it = 0;
-    while (it < 4) {
-        //viewModel.tick();
-        it++;
-    }
 }
 
 GameWindow::~GameWindow()
@@ -53,12 +37,13 @@ GameWindow::~GameWindow()
 
 void GameWindow::toggleAlive(Cell *cell) {
     //QWidget *cell2 = new Cell(cell->getPoint().x, cell->getPoint().y);
-    Cell *item = (Cell*)ui->board->cellWidget(cell->getPoint().x, cell->getPoint().y);
+    //Cell *item = new Cell(cell->getPoint().x, cell->getPoint().y);
 
-    QWidget *wid = (QWidget*)cell;
-    QString styleSheet = wid->styleSheet();
+    QWidget *item = (QWidget*)cell;
+    QString styleSheet = item->styleSheet();
     styleSheet += "background-color: yellow";
-    wid->setStyleSheet(styleSheet);
+    item->setStyleSheet(styleSheet);
+    ui->board->addWidget(item, cell->getPoint().x, cell->getPoint().y);
 }
 
 void GameWindow::playStop() {

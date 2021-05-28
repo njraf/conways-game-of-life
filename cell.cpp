@@ -53,7 +53,6 @@ Point Cell::getPoint() {
 
 void Cell::mousePressEvent(QMouseEvent *event)
 {
-    std::cout << point.x << "," << point.y  << " clicked" << std::endl;
     emit clicked(this);
 }
 

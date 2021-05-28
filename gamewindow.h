@@ -16,16 +16,18 @@ class GameWindow : public QMainWindow
 public:
     GameWindow(QWidget *parent = nullptr);
     ~GameWindow();
-    void closeEvent(QCloseEvent *event) override;
 
 private:
     Ui::GameWindow *ui;
     GameViewModel viewModel;
+    const int DIMENSIONS = 10;
 
 public slots:
-    void toggleAlive(Cell *cell);
+    void toggleAlive(Cell *cell); // only for player's toggle
     void playStop();
     void next();
     void resetClear();
+    void draw();
+    bool contains(std::vector<Cell*> *alive, Cell *cell);
 };
 #endif // GAMEWINDOW_H

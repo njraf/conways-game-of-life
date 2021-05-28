@@ -20,7 +20,7 @@ public:
 private:
     Ui::GameWindow *ui;
     GameViewModel viewModel;
-    const int DIMENSIONS = 10;
+    const int DIMENSIONS = 20;
 
 public slots:
     void toggleAlive(Cell *cell); // only for player's toggle

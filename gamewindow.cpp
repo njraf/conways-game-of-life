@@ -12,7 +12,7 @@ GameWindow::GameWindow(QWidget *parent)
     connect(ui->nextButton, SIGNAL(clicked()), this, SLOT(next()));
     connect(&viewModel, SIGNAL(nextTurn(QString)), ui->turnCounter, SLOT(setText(QString)));
     connect(&viewModel, SIGNAL(nextTurn(QString)), this, SLOT(draw()));
-    connect(ui->speedSlider, SIGNAL(sliderMoved(int)), &viewModel, SLOT(setSpeed(int)));
+    connect(ui->speedSlider, SIGNAL(valueChanged(int)), &viewModel, SLOT(setSpeed(int)));
 
     for (int y = 0; y < DIMENSIONS; y++) {
         for (int x = 0; x < DIMENSIONS; x++) {
@@ -26,8 +26,6 @@ GameWindow::GameWindow(QWidget *parent)
             ui->board->addWidget(cell, x, y);
         }
     }
-    viewModel.printLiveCells();
-
 }
 
 GameWindow::~GameWindow()

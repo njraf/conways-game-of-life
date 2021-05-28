@@ -36,7 +36,6 @@ void GameViewModel::run() {
 }
 
 void GameViewModel::tick() {
-    printLiveCells();
     turn++;
     determineNextState();
     draw();

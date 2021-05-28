@@ -23,6 +23,10 @@ GameViewModel::~GameViewModel() {
         //delete initialCells->at(i);
     }
 
+    liveCells->clear();
+    pendingCells->clear();
+    initialCells->clear();
+
     delete liveCells;
     delete pendingCells;
     delete initialCells;
@@ -39,7 +43,7 @@ void GameViewModel::tick() {
     turn++;
     determineNextState();
     draw();
-    printLiveCells();
+    //printLiveCells();
 
     emit nextTurn(QString::number(turn));
 }
@@ -142,7 +146,7 @@ bool GameViewModel::removeUnique(Cell* cell, std::vector<Cell*> *list) {
         if (cell->getPoint().x == (*i)->getPoint().x && cell->getPoint().y == (*i)->getPoint().y)
         {
             found = true;
-            //list->erase(i);
+            list->erase(i);
             break;
         }
     }

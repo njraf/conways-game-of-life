@@ -89,8 +89,8 @@ void GameWindow::resetClear() {
 void GameWindow::draw() {
     for (int y = 0; y < DIMENSIONS; y++) {
         for (int x = 0; x < DIMENSIONS; x++) {
-
-            QWidget *item = new Cell(x, y);
+            QLayoutItem *layoutItem = ui->board->itemAtPosition(x, y);
+            QWidget *item = dynamic_cast<QWidgetItem*>(layoutItem)->widget();
             QString styleSheet = item->styleSheet();
             if (!contains(viewModel.getLiveCells(), (Cell*)item)) {
                 styleSheet = "background-color: #DCDCDC;";
@@ -98,10 +98,6 @@ void GameWindow::draw() {
                 styleSheet = "background-color: yellow;";
             }
             item->setStyleSheet(styleSheet);
-
-            QObject::connect(item, SIGNAL(clicked(Cell*)), this, SLOT(toggleAlive(Cell*)));
-
-            ui->board->addWidget(item, x, y);
         }
     }
 }

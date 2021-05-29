@@ -34,6 +34,9 @@
      <string>Generate</string>
     </property>
     <addaction name="actionRandom"/>
+    <addaction name="actionR_pentomino"/>
+    <addaction name="actionDie_Hard"/>
+    <addaction name="actionAcorn"/>
    </widget>
    <addaction name="menuGenerate"/>
   </widget>
@@ -241,6 +244,21 @@ padding: 5px;
   <action name="actionRandom">
    <property name="text">
     <string>Random</string>
+   </property>
+  </action>
+  <action name="actionR_pentomino">
+   <property name="text">
+    <string>R-pentomino</string>
+   </property>
+  </action>
+  <action name="actionDie_Hard">
+   <property name="text">
+    <string>Die Hard</string>
+   </property>
+  </action>
+  <action name="actionAcorn">
+   <property name="text">
+    <string>Acorn</string>
    </property>
   </action>
  </widget>

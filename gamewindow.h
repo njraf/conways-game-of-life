@@ -33,5 +33,8 @@ public slots:
 
     // menu actions
     void generateRandom();
+    void generateRPentomino();
+    void generateDieHard();
+    void generateAcorn();
 };
 #endif // GAMEWINDOW_H

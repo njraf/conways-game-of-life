@@ -16,6 +16,9 @@ GameWindow::GameWindow(QWidget *parent)
 
     // Menu Actions
     connect(ui->actionRandom, SIGNAL(triggered()), this, SLOT(generateRandom()));
+    connect(ui->actionR_pentomino, SIGNAL(triggered()), this, SLOT(generateRPentomino()));
+    connect(ui->actionDie_Hard, SIGNAL(triggered()), this, SLOT(generateDieHard()));
+    connect(ui->actionAcorn, SIGNAL(triggered()), this, SLOT(generateAcorn()));
 
     for (int y = 0; y < DIMENSIONS; y++) {
         for (int x = 0; x < DIMENSIONS; x++) {
@@ -114,6 +117,10 @@ bool GameWindow::contains(std::vector<Cell*> *alive, Cell *cell) {
     return found;
 }
 
+
+
+// menu actions
+
 void GameWindow::generateRandom() {
     if (viewModel.isPlaying()) return;
 
@@ -135,6 +142,141 @@ void GameWindow::generateRandom() {
 
     draw();
 }
+
+void GameWindow::generateRPentomino() {
+    if (viewModel.isPlaying()) return;
+
+    viewModel.reset();
+    viewModel.clear();
+
+    QLayoutItem *layoutItem = ui->board->itemAtPosition(DIMENSIONS/2, DIMENSIONS/2);
+    Cell *anchor = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(anchor, viewModel.getInitCells());
+    viewModel.insertUnique(anchor, viewModel.getLiveCells());
+
+    int anchorX = anchor->getPoint().x;
+    int anchorY = anchor->getPoint().y;
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY);
+    Cell *cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX+2, anchorY);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY-1);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX, anchorY+1);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    draw();
+}
+
+void GameWindow::generateDieHard() {
+    if (viewModel.isPlaying()) return;
+
+    viewModel.reset();
+    viewModel.clear();
+
+    QLayoutItem *layoutItem = ui->board->itemAtPosition(DIMENSIONS/2 - 5, DIMENSIONS/2 - 5);
+    Cell *anchor = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(anchor, viewModel.getInitCells());
+    viewModel.insertUnique(anchor, viewModel.getLiveCells());
+
+    int anchorX = anchor->getPoint().x;
+    int anchorY = anchor->getPoint().y;
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY);
+    Cell *cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX, anchorY-1);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY+4);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY+5);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX-1, anchorY+5);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY+6);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    draw();
+}
+
+void GameWindow::generateAcorn() {
+    if (viewModel.isPlaying()) return;
+
+    viewModel.reset();
+    viewModel.clear();
+
+    QLayoutItem *layoutItem = ui->board->itemAtPosition(DIMENSIONS/2, DIMENSIONS/2);
+    Cell *anchor = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(anchor, viewModel.getInitCells());
+    viewModel.insertUnique(anchor, viewModel.getLiveCells());
+
+    int anchorX = anchor->getPoint().x;
+    int anchorY = anchor->getPoint().y;
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY+1);
+    Cell *cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY+2);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY+3);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX-1, anchorY-2);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY-2);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+    layoutItem = ui->board->itemAtPosition(anchorX+1, anchorY-3);
+    cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+    viewModel.insertUnique(cell, viewModel.getInitCells());
+    viewModel.insertUnique(cell, viewModel.getLiveCells());
+
+
+    draw();
+}
+
+
+
 
 
 

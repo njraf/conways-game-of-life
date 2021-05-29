@@ -1,6 +1,7 @@
 #ifndef GAMEWINDOW_H
 #define GAMEWINDOW_H
 
+#include <stdlib.h>
 #include <QMainWindow>
 #include "cell.h"
 #include "gameviewmodel.h"
@@ -20,7 +21,7 @@ public:
 private:
     Ui::GameWindow *ui;
     GameViewModel viewModel;
-    const int DIMENSIONS = 20;
+    const int DIMENSIONS = 30;
 
 public slots:
     void toggleAlive(Cell *cell); // only for player's toggle
@@ -29,5 +30,8 @@ public slots:
     void resetClear();
     void draw();
     bool contains(std::vector<Cell*> *alive, Cell *cell);
+
+    // menu actions
+    void generateRandom();
 };
 #endif // GAMEWINDOW_H

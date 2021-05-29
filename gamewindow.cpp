@@ -14,6 +14,9 @@ GameWindow::GameWindow(QWidget *parent)
     connect(&viewModel, SIGNAL(nextTurn(QString)), this, SLOT(draw()));
     connect(ui->speedSlider, SIGNAL(valueChanged(int)), &viewModel, SLOT(setSpeed(int)));
 
+    // Menu Actions
+    connect(ui->actionRandom, SIGNAL(triggered()), this, SLOT(generateRandom()));
+
     for (int y = 0; y < DIMENSIONS; y++) {
         for (int x = 0; x < DIMENSIONS; x++) {
             QWidget *cell = new Cell(x, y);
@@ -33,7 +36,6 @@ GameWindow::~GameWindow()
     viewModel.stop();
     delete ui;
 }
-
 
 // player toggle only
 void GameWindow::toggleAlive(Cell *cell) {
@@ -112,6 +114,27 @@ bool GameWindow::contains(std::vector<Cell*> *alive, Cell *cell) {
     return found;
 }
 
+void GameWindow::generateRandom() {
+    if (viewModel.isPlaying()) return;
+
+    viewModel.reset();
+    viewModel.clear();
+
+    srand(time(0));
+    int numCells = rand() % 8 + 5;
+
+    for (int i = 0; i < numCells; i++) {
+        int rRow = (DIMENSIONS / 2) + (rand() % 5) - 2;
+        int rCol = (DIMENSIONS / 2) + (rand() % 5) - 2;
+
+        QLayoutItem *layoutItem = ui->board->itemAtPosition(rRow, rCol);
+        Cell *cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+        viewModel.insertUnique(cell, viewModel.getInitCells());
+        viewModel.insertUnique(cell, viewModel.getLiveCells());
+    }
+
+    draw();
+}
 
 
 

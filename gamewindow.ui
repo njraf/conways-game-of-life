@@ -29,6 +29,13 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuGenerate">
+    <property name="title">
+     <string>Generate</string>
+    </property>
+    <addaction name="actionRandom"/>
+   </widget>
+   <addaction name="menuGenerate"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="controls">
@@ -143,7 +150,7 @@ padding: 5px;
       </widget>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <layout class="QVBoxLayout" name="speedLayout">
        <item>
         <widget class="QLineEdit" name="speedLabel">
          <property name="enabled">
@@ -231,6 +238,11 @@ padding: 5px;
     </layout>
    </widget>
   </widget>
+  <action name="actionRandom">
+   <property name="text">
+    <string>Random</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

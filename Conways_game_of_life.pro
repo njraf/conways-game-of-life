@@ -10,14 +10,12 @@ CONFIG += c++11
 
 SOURCES += \
     cell.cpp \
-    gamethread.cpp \
     gameviewmodel.cpp \
     main.cpp \
     gamewindow.cpp
 
 HEADERS += \
     cell.h \
-    gamethread.h \
     gameviewmodel.h \
     gamewindow.h
 
@@ -28,3 +26,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources/resources.qrc

@@ -17,6 +17,7 @@ class GameWindow : public QMainWindow
 public:
     GameWindow(QWidget *parent = nullptr);
     ~GameWindow();
+    bool contains(std::vector<Cell*> *alive, Cell *cell);
 
 private:
     Ui::GameWindow *ui;
@@ -29,7 +30,6 @@ public slots:
     void next();
     void resetClear();
     void draw();
-    bool contains(std::vector<Cell*> *alive, Cell *cell);
 
     // menu actions
     void generateRandom();

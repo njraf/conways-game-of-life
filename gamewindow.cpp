@@ -20,6 +20,7 @@ GameWindow::GameWindow(QWidget *parent)
     connect(ui->actionDie_Hard, SIGNAL(triggered()), this, SLOT(generateDieHard()));
     connect(ui->actionAcorn, SIGNAL(triggered()), this, SLOT(generateAcorn()));
 
+    // create default board
     for (int y = 0; y < DIMENSIONS; y++) {
         for (int x = 0; x < DIMENSIONS; x++) {
             QWidget *cell = new Cell(x, y);
@@ -46,8 +47,7 @@ void GameWindow::toggleAlive(Cell *cell) {
 
     cell->setAlive(!cell->getAlive());
 
-    QWidget *item = (QWidget*)cell;
-    QString styleSheet = item->styleSheet();
+    QString styleSheet = cell->styleSheet();
     if (!cell->getAlive()) {
         styleSheet = "background-color: #DCDCDC;";
         viewModel.removeUnique(cell, viewModel.getLiveCells());
@@ -57,7 +57,7 @@ void GameWindow::toggleAlive(Cell *cell) {
         viewModel.insertUnique(cell, viewModel.getLiveCells());
         viewModel.insertUnique(cell, viewModel.getInitCells());
     }
-    item->setStyleSheet(styleSheet);
+    cell->setStyleSheet(styleSheet);
 }
 
 void GameWindow::playStop() {
@@ -128,11 +128,11 @@ void GameWindow::generateRandom() {
     viewModel.clear();
 
     srand(time(0));
-    int numCells = rand() % 8 + 5;
+    int numCells = rand() % 8 + 5; // 5 - 12
 
     for (int i = 0; i < numCells; i++) {
-        int rRow = (DIMENSIONS / 2) + (rand() % 5) - 2;
-        int rCol = (DIMENSIONS / 2) + (rand() % 5) - 2;
+        int rRow = (DIMENSIONS / 2) + (rand() % 5) - 2; // center +/- 2
+        int rCol = (DIMENSIONS / 2) + (rand() % 5) - 2; // center +/- 2
 
         QLayoutItem *layoutItem = ui->board->itemAtPosition(rRow, rCol);
         Cell *cell = (Cell*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();

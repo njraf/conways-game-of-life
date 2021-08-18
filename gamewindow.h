@@ -21,7 +21,7 @@ public:
 
 private:
     Ui::GameWindow *ui;
-    GameViewModel viewModel;
+    GameViewModel *viewModel;
     const int DIMENSIONS = 30;
 
 public slots:

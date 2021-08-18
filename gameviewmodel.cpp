@@ -207,8 +207,8 @@ void GameViewModel::play() { //TODO: delete cells?
 
 void GameViewModel::stop() {
     playing = false;
-    wait(300);
     quit();
+    wait(30000); // 30 sec
 }
 
 void GameViewModel::next() {

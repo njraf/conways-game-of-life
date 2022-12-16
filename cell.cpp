@@ -44,6 +44,10 @@ void Cell::setNextState(bool _state) {
     nextState = _state;
 }
 
-Point Cell::getPoint() {
+Point Cell::getPoint() const {
     return point;
+}
+
+bool Cell::operator==(const Cell &cell) const {
+    return ((this->point.r == cell.getPoint().r) && (this->point.c == cell.getPoint().c));
 }

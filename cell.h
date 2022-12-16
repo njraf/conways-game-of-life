@@ -25,7 +25,9 @@ public:
     void setAlive(bool _alive);
     bool getNextState();
     void setNextState(bool _state);
-    Point getPoint();
+    Point getPoint() const;
+
+    bool operator==(const Cell &cell) const;
 };
 
 #endif // CELL_H

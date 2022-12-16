@@ -62,15 +62,17 @@ void GameViewModel::determineNextState() {
             for (int r = -1; r <= 1; r++) {
                 if (r == 0 && c == 0) continue; // if self
 
-                // check if neighbor is in liveCell list
-                auto neighborIt = std::find_if(liveCells->begin(), liveCells->end(), [=](Cell *cell) { return (cell->getPoint().r == r) && (cell->getPoint().c == c); });
-                if (neighborIt != liveCells->end()) {
-                    continue;
-                }
-
                 // a dead neighbor to a living cell
                 Cell *neighbor = new Cell(liveCell->getPoint().r + r, liveCell->getPoint().c + c);
                 neighbor->setAlive(false);
+
+                // check if neighbor is in liveCell list
+                auto neighborIt = std::find_if(liveCells->begin(), liveCells->end(), [=](Cell *cell) { return ((cell->getPoint().r == neighbor->getPoint().r) && (cell->getPoint().c == neighbor->getPoint().c)); });
+                if (neighborIt != liveCells->end()) {
+                    delete neighbor;
+                    continue;
+                }
+
 
                 int liveNeighbors = countLiveNeightborsOf(neighbor);
                 if (liveNeighbors == 3) {
@@ -210,14 +212,16 @@ void GameViewModel::toggleAlive(int r, int c) {
 
 
 
-void GameViewModel::play() { //TODO: delete cells?
+void GameViewModel::play() {
     if (playing) {
         return;
     }
     playing = true;
-    initialCells->clear();
-    for (int i = 0; i < liveCells->size(); i++) {
-        initialCells->push_back(liveCells->at(i));
+    if (turn == 0) {
+        initialCells->clear();
+        for (int i = 0; i < liveCells->size(); i++) {
+            initialCells->push_back(liveCells->at(i));
+        }
     }
 
     turnTimer.start(1000 - 100 * gameSpeed);
@@ -232,7 +236,7 @@ void GameViewModel::next() {
     tick();
 }
 
-void GameViewModel::reset() { //TODO: delete cells?
+void GameViewModel::reset() {
     turn = 0;
     liveCells->clear();
     for (int i = 0; i < initialCells->size(); i++) {
@@ -241,14 +245,14 @@ void GameViewModel::reset() { //TODO: delete cells?
     emit nextTurn(QString::number(turn));
 }
 
-void GameViewModel::clear() { //TODO: delete cells?
+void GameViewModel::clear() {
     for (int i = 0; i < liveCells->size(); i++) {
-        //delete liveCells->at(i);
+        delete liveCells->at(i);
     }
     liveCells->clear();
 
     for (int i = 0; i < initialCells->size(); i++) {
-        //delete initialCells->at(i);
+        delete initialCells->at(i);
     }
     initialCells->clear();
 }

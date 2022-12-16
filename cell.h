@@ -1,15 +1,13 @@
-#ifndef SQUARE_H
-#define SQUARE_H
+#ifndef CELL_H
+#define CELL_H
 
-#include <iostream>
-#include <QWidget>
-#include <QMouseEvent>
+#include <QObject>
 
 struct Point {
-    int x, y;
+    int r, c;
 };
 
-class Cell : public QWidget
+class Cell : public QObject
 {
     Q_OBJECT
 
@@ -18,12 +16,9 @@ private:
     bool nextState;
     Point point;
 
-protected:
-    void mousePressEvent(QMouseEvent *event) override;
-
 public:
-    Cell(QWidget *parent = nullptr);
-    Cell(int x, int y, QWidget *parent = nullptr);
+    Cell();
+    Cell(int r, int c);
     //Cell(int x, int y, bool _alive);
     virtual ~Cell();
     bool getAlive();
@@ -31,12 +26,6 @@ public:
     bool getNextState();
     void setNextState(bool _state);
     Point getPoint();
-    void paintEvent(QPaintEvent *) override;
-
-    bool operator==(Cell *cell);
-
-signals:
-    void clicked(Cell *cell);
 };
 
-#endif // SQUARE_H
+#endif // CELL_H

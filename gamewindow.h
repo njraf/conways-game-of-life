@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <QMainWindow>
-#include "cell.h"
+#include "cellWidget.h"
 #include "gameviewmodel.h"
 
 QT_BEGIN_NAMESPACE
@@ -17,7 +17,7 @@ class GameWindow : public QMainWindow
 public:
     GameWindow(QWidget *parent = nullptr);
     ~GameWindow();
-    bool contains(std::vector<Cell*> *alive, Cell *cell);
+    bool contains(std::vector<Cell*> *alive, CellWidget *cell);
 
 private:
     Ui::GameWindow *ui;
@@ -25,7 +25,7 @@ private:
     const int DIMENSIONS = 30;
 
 public slots:
-    void toggleAlive(Cell *cell); // only for player's toggle
+    void toggleAlive(CellWidget *cell); // only for player's toggle
     void playStop();
     void next();
     void resetClear();

@@ -1,21 +1,18 @@
 #include "cell.h"
 
-#include <QStyleOption>
-#include <QPainter>
-
-Cell::Cell(QWidget *parent) : QWidget(parent)
+Cell::Cell()
 {
-    point.x = 0;
-    point.y = 0;
-    alive = false;
+    point.r = 0;
+    point.c = 0;
+    alive = true;
     nextState = false;
 }
 
-Cell::Cell(int x, int y, QWidget *parent) : QWidget(parent)
+Cell::Cell(int r, int c)
 {
-    point.x = x;
-    point.y = y;
-    alive = false;
+    point.r = r;
+    point.c = c;
+    alive = true;
     nextState = false;
 }
 
@@ -49,22 +46,4 @@ void Cell::setNextState(bool _state) {
 
 Point Cell::getPoint() {
     return point;
-}
-
-void Cell::mousePressEvent(QMouseEvent *event)
-{
-    emit clicked(this);
-}
-
-void Cell::paintEvent(QPaintEvent *)
-     {
-         QStyleOption opt;
-         opt.init(this);
-         QPainter p(this);
-         style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
-     }
-
-bool Cell::operator==(Cell *cell) {
-    if (point.x == cell->getPoint().x && point.y == cell->getPoint().y) return true;
-    else return false;
 }

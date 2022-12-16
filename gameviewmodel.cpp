@@ -14,15 +14,15 @@ GameViewModel::GameViewModel()
 GameViewModel::~GameViewModel() {
     turnTimer.stop();
     for (int i = 0; i < liveCells->size(); i++) {
-        //delete liveCells->at(i);
+        delete liveCells->at(i);
     }
 
     for (int i = 0; i < pendingCells->size(); i++) {
-        //delete pendingCells->at(i);
+        delete pendingCells->at(i);
     }
 
     for (int i = 0; i < initialCells->size(); i++) {
-        //delete initialCells->at(i);
+        delete initialCells->at(i);
     }
 
     liveCells->clear();
@@ -58,27 +58,27 @@ void GameViewModel::determineNextState() {
         insertUnique(liveCell, pendingCells);
 
         // for each neighbor
-        for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x <= 1; x++) {
-                if (x == 0 && y == 0) continue; // if self
-                Cell *neighbor = new Cell(liveCell->getPoint().x + x, liveCell->getPoint().y + y);
+        for (int c = -1; c <= 1; c++) {
+            for (int r = -1; r <= 1; r++) {
+                if (r == 0 && c == 0) continue; // if self
 
                 // check if neighbor is in liveCell list
-                for (int ii = 0; ii < liveCells->size(); ii++) {
-                    if (neighbor == liveCells->at(ii)) {
-                        neighbor->setAlive(true);
-                        break;
-                    }
+                auto neighborIt = std::find_if(liveCells->begin(), liveCells->end(), [=](Cell *cell) { return (cell->getPoint().r == r) && (cell->getPoint().c == c); });
+                if (neighborIt != liveCells->end()) {
+                    continue;
                 }
 
-                if (!neighbor->getAlive()) {
-                    int liveNeighbors = countLiveNeightborsOf(neighbor);
-                    if (liveNeighbors == 3) {
-                        // give dead cell life
-                        neighbor->setNextState(true);
-                        pendingCells->push_back(neighbor);
-                        insertUnique(neighbor, pendingCells);
-                    }
+                // a dead neighbor to a living cell
+                Cell *neighbor = new Cell(liveCell->getPoint().r + r, liveCell->getPoint().c + c);
+                neighbor->setAlive(false);
+
+                int liveNeighbors = countLiveNeightborsOf(neighbor);
+                if (liveNeighbors == 3) {
+                    // give dead cell life
+                    neighbor->setNextState(true);
+                    insertUnique(neighbor, pendingCells);
+                } else {
+                    delete neighbor;
                 }
             }
         }
@@ -93,7 +93,9 @@ void GameViewModel::draw() {
     for (int i = 0; i < pendingCells->size(); i++) {
         Cell *cell = pendingCells->at(i);
         cell->setAlive(cell->getNextState());
-        if (cell->getAlive()) insertUnique(cell, liveCells);
+        if (cell->getAlive()) {
+            insertUnique(cell, liveCells);
+        }
     }
 
     pendingCells->clear();
@@ -103,49 +105,55 @@ int GameViewModel::countLiveNeightborsOf(Cell* cell) {
     int liveNeighbors = 0;
 
     // for each neighbor
-    for (int y = -1; y <= 1; y++) {
-        for (int x = -1; x <= 1; x++) {
-            if (x == 0 && y == 0) continue; // if self
+    for (int c = -1; c <= 1; c++) {
+        for (int r = -1; r <= 1; r++) {
+            if (r == 0 && c == 0) continue; // if self
 
             // check if neighbor is in the liveCells list
             for (std::vector<Cell*>::iterator it = liveCells->begin(); it != liveCells->end(); it++) {
-                if ((*it)->getPoint().x == cell->getPoint().x + x && (*it)->getPoint().y == cell->getPoint().y + y) {
+                if ((*it)->getPoint().r == cell->getPoint().r + r && (*it)->getPoint().c == cell->getPoint().c + c) {
                     liveNeighbors++;
                 }
             }
         }
     }
-    //std::cout << "Cell* (" << cell.getPoint().x << "," << cell.getPoint().y << ") has " << liveNeighbors << " live neighbors" << std::endl;
+    //std::cout << "Cell* (" << cell.getPoint().r << "," << cell.getPoint().c << ") has " << liveNeighbors << " live neighbors" << std::endl;
     return liveNeighbors;
 }
 
 bool GameViewModel::insertUnique(Cell* cell, std::vector<Cell*> *list) {
-    bool found = false;
-    for (int i = 0; i < list->size(); i++) {
-        if (cell->getPoint().x == list->at(i)->getPoint().x && cell->getPoint().y == list->at(i)->getPoint().y)
-        {
-            found = true;
-            break;
-        }
-    }
+    auto listIt = std::find_if(list->begin(), list->end(), [=](Cell *c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
+    bool found = (list->end() != listIt);
 
     if (!found) {
         list->push_back(cell);
     }
-    return !found;
+
+    return !found; // whether the cell was pushed to the list
 }
 
 bool GameViewModel::removeUnique(Cell* cell, std::vector<Cell*> *list) {
-    bool found = false;
-    for (std::vector<Cell*>::iterator i = list->begin(); i != list->end(); i++) {
-        if (cell->getPoint().x == (*i)->getPoint().x && cell->getPoint().y == (*i)->getPoint().y)
-        {
-            found = true;
-            list->erase(i);
-            break;
-        }
+    auto listIt = std::find_if(list->begin(), list->end(), [=](Cell *c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
+    bool found = (list->end() != listIt);
+
+    if (found) {
+        Cell *c = *listIt;
+        list->erase(listIt);
+        delete c;
     }
 
+    return found; // whether the cell was removed from the list
+}
+
+bool GameViewModel::removeUnique(int r, int c, std::vector<Cell*> *list) {
+    auto listIt = std::find_if(list->begin(), list->end(), [=](Cell *cell) { return (r == cell->getPoint().r) && (c == cell->getPoint().c); });
+    bool found = (list->end() != listIt);
+
+    if (found) {
+        Cell *cell = *listIt;
+        list->erase(listIt);
+        delete cell;
+    }
 
     return found;
 }
@@ -153,13 +161,14 @@ bool GameViewModel::removeUnique(Cell* cell, std::vector<Cell*> *list) {
 void GameViewModel::placeCell(Cell* cell) {
     cell->setAlive(true);
     insertUnique(cell, liveCells);
+    emit liveCellsUpdated();
 }
 
 void GameViewModel::printLiveCells() {
     std::cout << "Step " << turn << std::endl;
     for (int i = 0; i < liveCells->size(); i++) {
         Cell *cell = liveCells->at(i);
-        std::cout << "(" << cell->getPoint().x << "," << cell->getPoint().y << ")" << std::endl;
+        std::cout << "(" << cell->getPoint().r << "," << cell->getPoint().c << ")" << std::endl;
     }
     std::cout << std::endl;
 }
@@ -188,6 +197,16 @@ std::vector<Cell*> *GameViewModel::getInitCells() {
     return initialCells;
 }
 
+// meant for player interaction
+void GameViewModel::toggleAlive(int r, int c) {
+    if (liveCells->end() == std::find_if(liveCells->begin(), liveCells->end(), [=](Cell *cell) { return (cell->getPoint().r == r) && (cell->getPoint().c == c); })) {
+        insertUnique(new Cell(r, c), liveCells);
+        emit liveCellsUpdated();
+    } else {
+        removeUnique(r, c, liveCells);
+        emit liveCellsUpdated();
+    }
+}
 
 
 

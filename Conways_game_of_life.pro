@@ -10,12 +10,14 @@ CONFIG += c++11
 
 SOURCES += \
     cell.cpp \
+    cellWidget.cpp \
     gameviewmodel.cpp \
     main.cpp \
     gamewindow.cpp
 
 HEADERS += \
     cell.h \
+    cellWidget.h \
     gameviewmodel.h \
     gamewindow.h
 

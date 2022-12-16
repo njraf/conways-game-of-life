@@ -8,9 +8,11 @@ GameViewModel::GameViewModel()
     liveCells = new std::vector<Cell*>();
     pendingCells = new std::vector<Cell*>();
     initialCells = new std::vector<Cell*>();
+    connect(&turnTimer, &QTimer::timeout, this, &GameViewModel::tick);
 }
 
 GameViewModel::~GameViewModel() {
+    turnTimer.stop();
     for (int i = 0; i < liveCells->size(); i++) {
         //delete liveCells->at(i);
     }
@@ -30,13 +32,6 @@ GameViewModel::~GameViewModel() {
     delete liveCells;
     delete pendingCells;
     delete initialCells;
-}
-
-void GameViewModel::run() {
-    while (playing) {
-        tick();
-        msleep(1000 - 100 * gameSpeed);
-    }
 }
 
 void GameViewModel::tick() {
@@ -179,6 +174,10 @@ int GameViewModel::getTurn() {
 
 void GameViewModel::setSpeed(int speed) {
     gameSpeed = speed;
+    if (playing) {
+        turnTimer.stop();
+        turnTimer.start(1000 - 100 * gameSpeed);
+    }
 }
 
 std::vector<Cell*> *GameViewModel::getLiveCells() {
@@ -193,7 +192,7 @@ std::vector<Cell*> *GameViewModel::getInitCells() {
 
 
 void GameViewModel::play() { //TODO: delete cells?
-    if (isRunning()) {
+    if (playing) {
         return;
     }
     playing = true;
@@ -202,13 +201,12 @@ void GameViewModel::play() { //TODO: delete cells?
         initialCells->push_back(liveCells->at(i));
     }
 
-    start();
+    turnTimer.start(1000 - 100 * gameSpeed);
 }
 
 void GameViewModel::stop() {
     playing = false;
-    quit();
-    wait(30000); // 30 sec
+    turnTimer.stop();
 }
 
 void GameViewModel::next() {

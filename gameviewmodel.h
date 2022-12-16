@@ -3,10 +3,11 @@
 
 #include <iostream>
 #include <vector>
-#include <QThread>
+#include <QTimer>
+#include <qdebug.h>
 #include "cell.h"
 
-class GameViewModel : public QThread
+class GameViewModel : public QObject
 {
     Q_OBJECT
 private:
@@ -16,11 +17,11 @@ private:
     int gameSpeed; // 0-10; (1000ms - gameSpeed * 100) == sleep time between ticks
     int turn;
     bool playing;
+    QTimer turnTimer;
 
 public:
     GameViewModel();
     ~GameViewModel();
-    void run() override;
     void tick(); // one frame of game loop
     void determineNextState(); // determines value of Cell*.nextState
     void draw(); // sets Square.alive to Cell*.nextState

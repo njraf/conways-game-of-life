@@ -87,18 +87,56 @@ void GameWindow::resetClear() {
 }
 
 void GameWindow::draw() {
-    for (int y = 0; y < DIMENSIONS; y++) {
-        for (int x = 0; x < DIMENSIONS; x++) {
-            QLayoutItem *layoutItem = ui->board->itemAtPosition(x, y);
-            QWidget *item = dynamic_cast<QWidgetItem*>(layoutItem)->widget();
-            QString styleSheet = item->styleSheet();
-            if (!contains(viewModel->getLiveCells(), (CellWidget*)item)) {
-                styleSheet = "background-color: #DCDCDC;";
-            } else {
-                styleSheet = "background-color: yellow;";
-            }
-            item->setStyleSheet(styleSheet);
-        }
+
+    // get UI cells at (r,c) from live and prev cell lists
+    // an intercection of prev and live will remain alive
+    // the remaining prev cell should die, the remaining live cells should resurrect
+    std::vector<Cell*> *liveCells = viewModel->getLiveCells();
+    std::vector<Cell*> *prevCells = viewModel->getPrevCells();
+    std::vector<Cell*> cellsToKill(prevCells->size());
+    std::vector<Cell*> cellsToRes(liveCells->size());
+    auto killIt = std::copy_if(prevCells->begin(), prevCells->end(), cellsToKill.begin(), [=](Cell *cell) {
+        // copy if cell not found in both prev and live cell lists
+        auto liveIt = std::find_if(liveCells->begin(), liveCells->end(), [=](Cell *otherCell) {
+            return ((cell->getPoint().r == otherCell->getPoint().r) && (cell->getPoint().c == otherCell->getPoint().c));
+        });
+        return (liveIt == liveCells->end());
+    });
+    auto resIt = std::copy_if(liveCells->begin(), liveCells->end(), cellsToRes.begin(), [=](Cell *cell) {
+        // copy if cell not found in both prev and live cell lists
+        auto prevIt = std::find_if(prevCells->begin(), prevCells->end(), [=](Cell *otherCell) {
+            return ((cell->getPoint().r == otherCell->getPoint().r) && (cell->getPoint().c == otherCell->getPoint().c));
+        });
+        return (prevIt == prevCells->end());
+    });
+
+    cellsToKill.resize(std::distance(cellsToKill.begin(), killIt));
+    cellsToRes.resize(std::distance(cellsToRes.begin(), resIt));
+
+    // kill cells
+    for (auto k : cellsToKill) {
+        Point point = k->getPoint();
+        if ((point.r >= DIMENSIONS) || (point.c >= DIMENSIONS) || (point.r < 0) || (point.c < 0))
+            continue;
+
+        QLayoutItem *layoutItem = ui->board->itemAtPosition(point.r, point.c);
+        QWidget *item = dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+        QString styleSheet = item->styleSheet();
+        styleSheet = "background-color: #DCDCDC;";
+        item->setStyleSheet(styleSheet);
+    }
+
+    // resurrect cells
+    for (auto res : cellsToRes) {
+        Point point = res->getPoint();
+        if ((point.r >= DIMENSIONS) || (point.c >= DIMENSIONS) || (point.r < 0) || (point.c < 0))
+            continue;
+
+        QLayoutItem *layoutItem = ui->board->itemAtPosition(point.r, point.c);
+        QWidget *item = dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+        QString styleSheet = item->styleSheet();
+        styleSheet = "background-color: yellow;";
+        item->setStyleSheet(styleSheet);
     }
 }
 

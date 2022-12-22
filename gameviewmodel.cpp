@@ -240,11 +240,13 @@ void GameViewModel::play() {
     }
 
     turnTimer.start(1000 - 100 * gameSpeed);
+    emit gameStarted();
 }
 
 void GameViewModel::stop() {
     playing = false;
     turnTimer.stop();
+    emit gameStopped();
 }
 
 void GameViewModel::next() {
@@ -258,9 +260,21 @@ void GameViewModel::reset() {
     }
     liveCells->clear();
 
+    for (int i = 0; i < pendingCells->size(); i++) {
+        delete pendingCells->at(i);
+    }
+    pendingCells->clear();
+
     for (int i = 0; i < initialCells->size(); i++) {
         liveCells->push_back(new Cell(*initialCells->at(i)));
     }
+
+    emit nextTurn(QString::number(turn));
+
+    for (int i = 0; i < prevCells->size(); i++) {
+        delete prevCells->at(i);
+    }
+    prevCells->clear();
 
     emit nextTurn(QString::number(turn));
 }

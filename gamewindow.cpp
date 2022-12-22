@@ -16,6 +16,8 @@ GameWindow::GameWindow(QWidget *parent)
     connect(viewModel, SIGNAL(nextTurn(QString)), this, SLOT(draw()));
     connect(viewModel, SIGNAL(liveCellsUpdated()), this, SLOT(draw()));
     connect(ui->speedSlider, SIGNAL(valueChanged(int)), viewModel, SLOT(setSpeed(int)));
+    connect(viewModel, &GameViewModel::gameStarted, this, [=] { ui->playButton->setText("Stop"); });
+    connect(viewModel, &GameViewModel::gameStopped, this, [=] { ui->playButton->setText("Start"); });
 
     // Menu Actions
     connect(ui->actionRandom, SIGNAL(triggered()), this, SLOT(generateRandom()));
@@ -71,22 +73,26 @@ void GameWindow::next() {
 }
 
 void GameWindow::resetClear() {
-    if (viewModel->getTurn() > 0) {
+    if (viewModel->getTurn() > 0) { // reset
         viewModel->reset();
         ui->turnCounter->setText("0");
         if (!viewModel->isPlaying()) {
             ui->resetButton->setText("Clear");
         }
-    } else {
+    } else { // clear
         if (viewModel->isPlaying()) {
             playStop();
         }
         viewModel->clear();
-        draw();
+        clearBoard();
     }
 }
 
 void GameWindow::draw() {
+
+    if ((viewModel->getTurn() == 0) && !viewModel->getPrevCells()->empty()) {
+        clearBoard();
+    }
 
     // get UI cells at (r,c) from live and prev cell lists
     // an intercection of prev and live will remain alive
@@ -152,6 +158,17 @@ bool GameWindow::contains(std::vector<Cell*> *alive, CellWidget *cell) {
     return found;
 }
 
+void GameWindow::clearBoard() {
+    for (int y = 0; y < DIMENSIONS; y++) {
+        for (int x = 0; x < DIMENSIONS; x++) {
+            QLayoutItem *layoutItem = ui->board->itemAtPosition(x, y);
+            QWidget *item = dynamic_cast<QWidgetItem*>(layoutItem)->widget();
+            QString styleSheet = item->styleSheet();
+            styleSheet = "background-color: #DCDCDC;";
+            item->setStyleSheet(styleSheet);
+        }
+    }
+}
 
 
 // menu actions
@@ -161,6 +178,7 @@ void GameWindow::generateRandom() {
 
     viewModel->reset();
     viewModel->clear();
+    clearBoard();
 
     srand(time(0));
     int numCells = rand() % 8 + 5; // 5 - 12
@@ -177,6 +195,7 @@ void GameWindow::generateRPentomino() {
 
     viewModel->reset();
     viewModel->clear();
+    clearBoard();
 
     QLayoutItem *layoutItem = ui->board->itemAtPosition(DIMENSIONS/2, DIMENSIONS/2);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
@@ -207,6 +226,7 @@ void GameWindow::generateDieHard() {
 
     viewModel->reset();
     viewModel->clear();
+    clearBoard();
 
     QLayoutItem *layoutItem = ui->board->itemAtPosition(DIMENSIONS/2 - 5, DIMENSIONS/2 - 5);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
@@ -245,6 +265,7 @@ void GameWindow::generateAcorn() {
 
     viewModel->reset();
     viewModel->clear();
+    clearBoard();
 
     QLayoutItem *layoutItem = ui->board->itemAtPosition(DIMENSIONS/2, DIMENSIONS/2);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();

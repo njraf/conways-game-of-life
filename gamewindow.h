@@ -30,6 +30,7 @@ public slots:
     void next();
     void resetClear();
     void draw();
+    void clearBoard();
 
     // menu actions
     void generateRandom();

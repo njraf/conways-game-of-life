@@ -48,6 +48,8 @@ public:
 signals:
     void nextTurn(QString turn);
     void liveCellsUpdated();
+    void gameStarted();
+    void gameStopped();
 
 public slots:
     void setSpeed(int speed);

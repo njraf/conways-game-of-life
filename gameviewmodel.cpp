@@ -156,12 +156,6 @@ bool GameViewModel::removeUnique(int r, int c, std::vector<Cell*> *list) {
     return found;
 }
 
-void GameViewModel::placeCell(Cell* cell) {
-    cell->setAlive(true);
-    insertUnique(cell, liveCells);
-    emit liveCellsUpdated();
-}
-
 void GameViewModel::printLiveCells() {
     std::cout << "Step " << turn << std::endl;
     for (int i = 0; i < liveCells->size(); i++) {
@@ -250,6 +244,16 @@ void GameViewModel::stop() {
 }
 
 void GameViewModel::next() {
+    if (turn == 0) {
+        for (int i = 0; i < initialCells->size(); i++) {
+            delete initialCells->at(i);
+        }
+        initialCells->clear();
+        for (int i = 0; i < liveCells->size(); i++) {
+            initialCells->push_back(new Cell(*liveCells->at(i)));
+        }
+    }
+
     tick();
 }
 
@@ -269,14 +273,12 @@ void GameViewModel::reset() {
         liveCells->push_back(new Cell(*initialCells->at(i)));
     }
 
-    emit nextTurn(QString::number(turn));
-
     for (int i = 0; i < prevCells->size(); i++) {
         delete prevCells->at(i);
     }
     prevCells->clear();
 
-    emit nextTurn(QString::number(turn));
+    emit resetBoard();
 }
 
 void GameViewModel::clear() {
@@ -299,6 +301,8 @@ void GameViewModel::clear() {
         delete prevCells->at(i);
     }
     prevCells->clear();
+
+    emit clearBoard();
 }
 
 

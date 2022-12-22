@@ -16,8 +16,20 @@ GameWindow::GameWindow(QWidget *parent)
     connect(viewModel, SIGNAL(nextTurn(QString)), this, SLOT(draw()));
     connect(viewModel, SIGNAL(liveCellsUpdated()), this, SLOT(draw()));
     connect(ui->speedSlider, SIGNAL(valueChanged(int)), viewModel, SLOT(setSpeed(int)));
-    connect(viewModel, &GameViewModel::gameStarted, this, [=] { ui->playButton->setText("Stop"); });
+    connect(viewModel, &GameViewModel::gameStarted, this, [=] {
+        ui->playButton->setText("Stop");
+        ui->resetButton->setText("Reset");
+    });
     connect(viewModel, &GameViewModel::gameStopped, this, [=] { ui->playButton->setText("Start"); });
+    connect(viewModel, &GameViewModel::resetBoard, this, [=] {
+        clearBoard();
+        ui->turnCounter->setText("0");
+        if (!viewModel->isPlaying()) {
+            ui->resetButton->setText("Clear");
+        }
+        draw();
+    });
+    connect(viewModel, &GameViewModel::clearBoard, this, [=] { clearBoard(); });
 
     // Menu Actions
     connect(ui->actionRandom, SIGNAL(triggered()), this, SLOT(generateRandom()));
@@ -57,11 +69,8 @@ void GameWindow::toggleAlive(CellWidget *cell) {
 void GameWindow::playStop() {
     if (viewModel->isPlaying()) {
         viewModel->stop();
-        ui->playButton->setText("Start");
     } else {
         viewModel->play();
-        ui->playButton->setText("Stop");
-        ui->resetButton->setText("Reset");
     }
 }
 
@@ -73,27 +82,14 @@ void GameWindow::next() {
 }
 
 void GameWindow::resetClear() {
-    if (viewModel->getTurn() > 0) { // reset
+    if (viewModel->getTurn() > 0) {
         viewModel->reset();
-        ui->turnCounter->setText("0");
-        if (!viewModel->isPlaying()) {
-            ui->resetButton->setText("Clear");
-        }
-    } else { // clear
-        if (viewModel->isPlaying()) {
-            playStop();
-        }
+    } else {
         viewModel->clear();
-        clearBoard();
     }
 }
 
 void GameWindow::draw() {
-
-    if ((viewModel->getTurn() == 0) && !viewModel->getPrevCells()->empty()) {
-        clearBoard();
-    }
-
     // get UI cells at (r,c) from live and prev cell lists
     // an intercection of prev and live will remain alive
     // the remaining prev cell should die, the remaining live cells should resurrect
@@ -144,18 +140,6 @@ void GameWindow::draw() {
         styleSheet = "background-color: yellow;";
         item->setStyleSheet(styleSheet);
     }
-}
-
-bool GameWindow::contains(std::vector<Cell*> *alive, CellWidget *cell) {
-    bool found = false;
-    for (int i = 0; i < alive->size(); i++) {
-        if (alive->at(i)->getPoint().r == cell->getPoint().r && alive->at(i)->getPoint().c == cell->getPoint().c) {
-            found = true;
-            break;
-        }
-    }
-
-    return found;
 }
 
 void GameWindow::clearBoard() {

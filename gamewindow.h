@@ -17,7 +17,6 @@ class GameWindow : public QMainWindow
 public:
     GameWindow(QWidget *parent = nullptr);
     ~GameWindow();
-    bool contains(std::vector<Cell*> *alive, CellWidget *cell);
 
 private:
     Ui::GameWindow *ui;

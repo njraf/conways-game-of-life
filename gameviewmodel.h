@@ -30,7 +30,6 @@ public:
     bool insertUnique(Cell* cell, std::vector<Cell*> *list); // insert cell only if the cell does not exist in the list already
     bool removeUnique(Cell* cell, std::vector<Cell*> *list);
     bool removeUnique(int x, int y, std::vector<Cell*> *list);
-    void placeCell(Cell* cell);
     void printLiveCells(); // cmd line print x,y locations of live cells
     bool isPlaying();
     int getTurn();
@@ -50,6 +49,8 @@ signals:
     void liveCellsUpdated();
     void gameStarted();
     void gameStopped();
+    void resetBoard();
+    void clearBoard();
 
 public slots:
     void setSpeed(int speed);

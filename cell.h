@@ -19,6 +19,7 @@ private:
 public:
     Cell();
     Cell(int r, int c);
+    Cell(const Cell &cell);
     //Cell(int x, int y, bool _alive);
     virtual ~Cell();
     bool getAlive();

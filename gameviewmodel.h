@@ -14,6 +14,7 @@ private:
     std::vector<Cell*> *liveCells;
     std::vector<Cell*> *pendingCells; // liveCells for next turn
     std::vector<Cell*> *initialCells;
+    std::vector<Cell*> *prevCells; // live cells from the turn
     int gameSpeed; // 0-10; (1000ms - gameSpeed * 100) == sleep time between ticks
     int turn;
     bool playing;
@@ -35,7 +36,9 @@ public:
     int getTurn();
     std::vector<Cell*> *getLiveCells();
     std::vector<Cell*> *getInitCells();
+    std::vector<Cell*> *getPrevCells();
     void toggleAlive(int x, int y);
+    void saveLiveCells(); // copy liveCells to prevCells
 
     void play();
     void next();

@@ -24,6 +24,13 @@ Cell::Cell(int r, int c)
 //    nextState = false;
 //}
 
+Cell::Cell(const Cell &cell) {
+    point.r = cell.point.r;
+    point.c = cell.point.c;
+    alive = cell.alive;
+    nextState = cell.nextState;
+}
+
 Cell::~Cell() {
 
 }

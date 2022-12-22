@@ -78,6 +78,9 @@ void GameWindow::resetClear() {
             ui->resetButton->setText("Clear");
         }
     } else {
+        if (viewModel->isPlaying()) {
+            playStop();
+        }
         viewModel->clear();
         draw();
     }

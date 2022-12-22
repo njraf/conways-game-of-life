@@ -17,11 +17,13 @@ class GameWindow : public QMainWindow
 public:
     GameWindow(QWidget *parent = nullptr);
     ~GameWindow();
+    void makeBoard();
 
 private:
     Ui::GameWindow *ui;
     GameViewModel *viewModel;
-    const int DIMENSIONS = 30;
+    int ROWS = 30;
+    int COLS = ROWS + (ROWS / 2);
 
 public slots:
     void toggleAlive(CellWidget *cell); // only for player's toggle

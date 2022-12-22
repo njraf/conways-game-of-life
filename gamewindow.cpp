@@ -8,6 +8,8 @@ GameWindow::GameWindow(QWidget *parent)
 {
     ui->setupUi(this);
     viewModel->setSpeed(ui->speedSlider->value());
+    ROWS = (ui->gridSizeSlider->value() * 5) + 20;
+    COLS = ROWS + (ROWS / 2);
 
     connect(ui->playButton, SIGNAL(clicked()), this, SLOT(playStop()));
     connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(resetClear()));
@@ -30,6 +32,11 @@ GameWindow::GameWindow(QWidget *parent)
         draw();
     });
     connect(viewModel, &GameViewModel::clearBoard, this, [=] { clearBoard(); });
+    connect(ui->gridSizeSlider, &QSlider::valueChanged, this, [=](int position) {
+        ROWS = (position * 5) + 20;
+        COLS = ROWS + (ROWS / 2);
+        makeBoard();
+    });
 
     // Menu Actions
     connect(ui->actionRandom, SIGNAL(triggered()), this, SLOT(generateRandom()));
@@ -37,19 +44,7 @@ GameWindow::GameWindow(QWidget *parent)
     connect(ui->actionDie_Hard, SIGNAL(triggered()), this, SLOT(generateDieHard()));
     connect(ui->actionAcorn, SIGNAL(triggered()), this, SLOT(generateAcorn()));
 
-    // create default board
-    for (int y = 0; y < DIMENSIONS; y++) {
-        for (int x = 0; x < DIMENSIONS; x++) {
-            QWidget *cell = new CellWidget(x, y);
-            QString styleSheet = cell->styleSheet();
-            styleSheet += "background-color: #DCDCDC;";
-            cell->setStyleSheet(styleSheet);
-
-            QObject::connect(cell, SIGNAL(clicked(CellWidget*)), this, SLOT(toggleAlive(CellWidget*)));
-
-            ui->board->addWidget(cell, x, y);
-        }
-    }
+    makeBoard();
 }
 
 GameWindow::~GameWindow()
@@ -57,6 +52,30 @@ GameWindow::~GameWindow()
     viewModel->stop();
     delete viewModel;
     delete ui;
+}
+
+void GameWindow::makeBoard() {
+    QLayoutItem *child;
+    while ((child = ui->board->layout()->takeAt(0)) != nullptr) {
+        delete child->widget(); // delete the widget
+        delete child;   // delete the layout item
+    }
+
+    // create default board
+    for (int c = 0; c < COLS; c++) {
+        for (int r = 0; r < ROWS; r++) {
+            QWidget *cell = new CellWidget(r, c);
+            QString styleSheet = cell->styleSheet();
+            styleSheet += "background-color: #DCDCDC;";
+            cell->setStyleSheet(styleSheet);
+
+            QObject::connect(cell, SIGNAL(clicked(CellWidget*)), this, SLOT(toggleAlive(CellWidget*)));
+
+            ui->board->addWidget(cell, r, c);
+        }
+    }
+
+    draw();
 }
 
 // player toggle only
@@ -118,7 +137,7 @@ void GameWindow::draw() {
     // kill cells
     for (auto k : cellsToKill) {
         Point point = k->getPoint();
-        if ((point.r >= DIMENSIONS) || (point.c >= DIMENSIONS) || (point.r < 0) || (point.c < 0))
+        if ((point.r >= ROWS) || (point.c >= COLS) || (point.r < 0) || (point.c < 0))
             continue;
 
         QLayoutItem *layoutItem = ui->board->itemAtPosition(point.r, point.c);
@@ -131,7 +150,7 @@ void GameWindow::draw() {
     // resurrect cells
     for (auto res : cellsToRes) {
         Point point = res->getPoint();
-        if ((point.r >= DIMENSIONS) || (point.c >= DIMENSIONS) || (point.r < 0) || (point.c < 0))
+        if ((point.r >= ROWS) || (point.c >= COLS) || (point.r < 0) || (point.c < 0))
             continue;
 
         QLayoutItem *layoutItem = ui->board->itemAtPosition(point.r, point.c);
@@ -143,9 +162,9 @@ void GameWindow::draw() {
 }
 
 void GameWindow::clearBoard() {
-    for (int y = 0; y < DIMENSIONS; y++) {
-        for (int x = 0; x < DIMENSIONS; x++) {
-            QLayoutItem *layoutItem = ui->board->itemAtPosition(x, y);
+    for (int c = 0; c < COLS; c++) {
+        for (int r = 0; r < ROWS; r++) {
+            QLayoutItem *layoutItem = ui->board->itemAtPosition(r, c);
             QWidget *item = dynamic_cast<QWidgetItem*>(layoutItem)->widget();
             QString styleSheet = item->styleSheet();
             styleSheet = "background-color: #DCDCDC;";
@@ -168,8 +187,8 @@ void GameWindow::generateRandom() {
     int numCells = rand() % 8 + 5; // 5 - 12
 
     for (int i = 0; i < numCells; i++) {
-        int rRow = (DIMENSIONS / 2) + (rand() % 5) - 2; // center +/- 2
-        int rCol = (DIMENSIONS / 2) + (rand() % 5) - 2; // center +/- 2
+        int rRow = (ROWS / 2) + (rand() % 5) - 2; // center +/- 2
+        int rCol = (COLS/ 2) + (rand() % 5) - 2; // center +/- 2
         viewModel->toggleAlive(rRow, rCol);
     }
 }
@@ -181,7 +200,7 @@ void GameWindow::generateRPentomino() {
     viewModel->clear();
     clearBoard();
 
-    QLayoutItem *layoutItem = ui->board->itemAtPosition(DIMENSIONS/2, DIMENSIONS/2);
+    QLayoutItem *layoutItem = ui->board->itemAtPosition(ROWS/2, COLS/2);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
 
     int anchorR = anchor->getPoint().r;
@@ -212,7 +231,7 @@ void GameWindow::generateDieHard() {
     viewModel->clear();
     clearBoard();
 
-    QLayoutItem *layoutItem = ui->board->itemAtPosition(DIMENSIONS/2 - 5, DIMENSIONS/2 - 5);
+    QLayoutItem *layoutItem = ui->board->itemAtPosition(ROWS/2 - 5, COLS/2 - 5);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
 
     int anchorR = anchor->getPoint().r;
@@ -251,7 +270,7 @@ void GameWindow::generateAcorn() {
     viewModel->clear();
     clearBoard();
 
-    QLayoutItem *layoutItem = ui->board->itemAtPosition(DIMENSIONS/2, DIMENSIONS/2);
+    QLayoutItem *layoutItem = ui->board->itemAtPosition(ROWS/2, COLS/2);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
 
     int anchorR = anchor->getPoint().r;

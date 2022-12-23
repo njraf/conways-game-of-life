@@ -11,18 +11,23 @@ CONFIG += c++11
 SOURCES += \
     cell.cpp \
     cellWidget.cpp \
+    confighandler.cpp \
     gameviewmodel.cpp \
+    loadconfigdialog.cpp \
     main.cpp \
     gamewindow.cpp
 
 HEADERS += \
     cell.h \
     cellWidget.h \
+    confighandler.h \
     gameviewmodel.h \
-    gamewindow.h
+    gamewindow.h \
+    loadconfigdialog.h
 
 FORMS += \
-    gamewindow.ui
+    gamewindow.ui \
+    loadconfigdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -39,6 +39,36 @@ GameWindow::GameWindow(QWidget *parent)
     });
 
     // Menu Actions
+    connect(ui->actionSave, &QAction::triggered, viewModel, [=] {
+        if (viewModel->isPlaying()) return;
+        bool ok;
+        QString text = QInputDialog::getText(this, "Save Board", "File name:", QLineEdit::Normal, "", &ok);
+        if (ok && !text.isEmpty())
+            viewModel->saveConfig(text + ".txt");
+    });
+    connect(ui->actionLoad, &QAction::triggered, viewModel, [=] {
+        if (viewModel->isPlaying()) return;
+
+        QStringList fileNames = ConfigHandler::getInstance()->getConfigNames();
+        if (fileNames.isEmpty()) return;
+
+        QString selectedFile = "";
+        bool canceled = false;
+        LoadConfigDialog dialog;
+        dialog.populateList(fileNames);
+        connect(&dialog, &QDialog::accepted, this, [&dialog, &selectedFile, &canceled] {
+            selectedFile = dialog.getSelection();
+            canceled = selectedFile.isEmpty();
+        });
+        connect(&dialog, &QDialog::rejected, this, [&canceled] {
+            canceled = true;
+        });
+        dialog.exec();
+
+        if (canceled) return;
+
+        viewModel->loadConfig(selectedFile);
+    });
     connect(ui->actionRandom, SIGNAL(triggered()), this, SLOT(generateRandom()));
     connect(ui->actionR_pentomino, SIGNAL(triggered()), this, SLOT(generateRPentomino()));
     connect(ui->actionDie_Hard, SIGNAL(triggered()), this, SLOT(generateDieHard()));
@@ -50,6 +80,7 @@ GameWindow::GameWindow(QWidget *parent)
 GameWindow::~GameWindow()
 {
     viewModel->stop();
+    delete ConfigHandler::getInstance();
     delete viewModel;
     delete ui;
 }

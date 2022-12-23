@@ -3,8 +3,10 @@
 
 #include <stdlib.h>
 #include <QMainWindow>
+#include <QInputDialog>
 #include "cellWidget.h"
 #include "gameviewmodel.h"
+#include "loadconfigdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class GameWindow; }

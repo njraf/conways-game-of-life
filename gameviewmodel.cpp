@@ -307,3 +307,34 @@ void GameViewModel::clear() {
 
 
 
+void GameViewModel::saveConfig(QString fileName) {
+    ConfigHandler::getInstance()->saveBoard(fileName, liveCells, pendingCells, initialCells, prevCells);
+}
+
+void GameViewModel::loadConfig(QString fileName) {
+    QStringList stringList;
+    ConfigHandler::getInstance()->loadBoard(fileName, stringList);
+
+    reset();
+    //clear();
+
+    for (QString line : stringList) {
+        QStringList parts = line.split(',');
+        if (parts.size() != 3)
+            continue;
+
+        if (parts[0] == 'L') {
+            liveCells->push_back(new Cell(parts[1].toInt(), parts[2].toInt()));
+        } else if (parts[0] == 'N') {
+            pendingCells->push_back(new Cell(parts[1].toInt(), parts[2].toInt()));
+        } else if (parts[0] == 'P') {
+            prevCells->push_back(new Cell(parts[1].toInt(), parts[2].toInt()));
+        } else if (parts[0] == 'I') {
+            initialCells->push_back(new Cell(parts[1].toInt(), parts[2].toInt()));
+        }
+    }
+
+    turn = 0;
+    emit nextTurn(QString::number(turn));
+}
+

@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <qdebug.h>
 #include "cell.h"
+#include "confighandler.h"
 
 class GameViewModel : public QObject
 {
@@ -43,6 +44,9 @@ public:
     void next();
     void reset();
     void clear();
+
+    void saveConfig(QString fileName);
+    void loadConfig(QString fileName);
 
 signals:
     void nextTurn(QString turn);

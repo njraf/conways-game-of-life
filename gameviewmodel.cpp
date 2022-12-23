@@ -317,8 +317,7 @@ void GameViewModel::loadConfig(QString fileName) {
     QStringList stringList;
     ConfigHandler::getInstance()->loadBoard(fileName, stringList);
 
-    reset();
-    //clear();
+    clear();
 
     for (QString line : stringList) {
         QStringList parts = line.split(',');

@@ -10,6 +10,10 @@ LoadConfigDialog::LoadConfigDialog(QWidget *parent) :
     connect(ui->configList, &QListWidget::itemClicked, this, [=](QListWidgetItem *item) {
         selection = item->text();
     });
+    connect(ui->configList, &QListWidget::itemDoubleClicked, this, [=](QListWidgetItem *item) {
+        selection = item->text();
+        emit done(QDialog::Accepted);
+    });
 }
 
 LoadConfigDialog::~LoadConfigDialog()

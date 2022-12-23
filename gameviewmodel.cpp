@@ -201,7 +201,9 @@ void GameViewModel::toggleAlive(int r, int c) {
         emit liveCellsUpdated();
     } else {
         removeUnique(r, c, liveCells);
+        insertUnique(new Cell(r, c), prevCells);
         emit liveCellsUpdated();
+        removeUnique(r, c, prevCells);
     }
 }
 
@@ -324,13 +326,13 @@ void GameViewModel::loadConfig(QString fileName) {
             continue;
 
         if (parts[0] == 'L') {
-            liveCells->push_back(new Cell(parts[1].toInt(), parts[2].toInt()));
+            insertUnique(new Cell(parts[1].toInt(), parts[2].toInt()), liveCells);
         } else if (parts[0] == 'N') {
-            pendingCells->push_back(new Cell(parts[1].toInt(), parts[2].toInt()));
+            insertUnique(new Cell(parts[1].toInt(), parts[2].toInt()), pendingCells);
         } else if (parts[0] == 'P') {
-            prevCells->push_back(new Cell(parts[1].toInt(), parts[2].toInt()));
+            insertUnique(new Cell(parts[1].toInt(), parts[2].toInt()), prevCells);
         } else if (parts[0] == 'I') {
-            initialCells->push_back(new Cell(parts[1].toInt(), parts[2].toInt()));
+            insertUnique(new Cell(parts[1].toInt(), parts[2].toInt()), initialCells);
         }
     }
 

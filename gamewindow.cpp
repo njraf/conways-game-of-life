@@ -147,16 +147,16 @@ void GameWindow::draw() {
     std::vector<Cell*> *prevCells = viewModel->getPrevCells();
     std::vector<Cell*> cellsToKill(prevCells->size());
     std::vector<Cell*> cellsToRes(liveCells->size());
-    auto killIt = std::copy_if(prevCells->begin(), prevCells->end(), cellsToKill.begin(), [=](Cell *cell) {
+    auto killIt = std::copy_if(prevCells->begin(), prevCells->end(), cellsToKill.begin(), [&](Cell *cell) {
         // copy if cell not found in both prev and live cell lists
-        auto liveIt = std::find_if(liveCells->begin(), liveCells->end(), [=](Cell *otherCell) {
+        auto liveIt = std::find_if(liveCells->begin(), liveCells->end(), [&](Cell *otherCell) {
             return ((cell->getPoint().r == otherCell->getPoint().r) && (cell->getPoint().c == otherCell->getPoint().c));
         });
         return (liveIt == liveCells->end());
     });
-    auto resIt = std::copy_if(liveCells->begin(), liveCells->end(), cellsToRes.begin(), [=](Cell *cell) {
+    auto resIt = std::copy_if(liveCells->begin(), liveCells->end(), cellsToRes.begin(), [&](Cell *cell) {
         // copy if cell not found in both prev and live cell lists
-        auto prevIt = std::find_if(prevCells->begin(), prevCells->end(), [=](Cell *otherCell) {
+        auto prevIt = std::find_if(prevCells->begin(), prevCells->end(), [&](Cell *otherCell) {
             return ((cell->getPoint().r == otherCell->getPoint().r) && (cell->getPoint().c == otherCell->getPoint().c));
         });
         return (prevIt == prevCells->end());
@@ -168,8 +168,9 @@ void GameWindow::draw() {
     // kill cells
     for (auto k : cellsToKill) {
         Point point = k->getPoint();
-        if ((point.r >= ROWS) || (point.c >= COLS) || (point.r < 0) || (point.c < 0))
+        if ((point.r >= ROWS) || (point.c >= COLS) || (point.r < 0) || (point.c < 0)) {
             continue;
+        }
 
         QLayoutItem *layoutItem = ui->board->itemAtPosition(point.r, point.c);
         QWidget *item = dynamic_cast<QWidgetItem*>(layoutItem)->widget();
@@ -181,8 +182,9 @@ void GameWindow::draw() {
     // resurrect cells
     for (auto res : cellsToRes) {
         Point point = res->getPoint();
-        if ((point.r >= ROWS) || (point.c >= COLS) || (point.r < 0) || (point.c < 0))
+        if ((point.r >= ROWS) || (point.c >= COLS) || (point.r < 0) || (point.c < 0)) {
             continue;
+        }
 
         QLayoutItem *layoutItem = ui->board->itemAtPosition(point.r, point.c);
         QWidget *item = dynamic_cast<QWidgetItem*>(layoutItem)->widget();

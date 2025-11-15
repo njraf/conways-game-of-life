@@ -27,7 +27,7 @@ public:
     void tick(); // one frame of game loop
     void determineNextState(); // determines value of Cell*.nextState
     void draw(); // sets Square.alive to Cell*.nextState
-    int countLiveNeightborsOf(Cell* cell);
+    int countLiveNeighborsOf(Cell* cell);
     bool insertUnique(Cell* cell, std::vector<Cell*> *list); // insert cell only if the cell does not exist in the list already
     bool removeUnique(Cell* cell, std::vector<Cell*> *list);
     bool removeUnique(int x, int y, std::vector<Cell*> *list);

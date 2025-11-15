@@ -37,7 +37,7 @@ void GameViewModel::determineNextState() {
     // for each live cell
     for (int i = 0; i < liveCells->size(); i++) {
         Cell *liveCell = liveCells->at(i);
-        int liveNeighbors = countLiveNeightborsOf(liveCell);
+        int liveNeighbors = countLiveNeighborsOf(liveCell);
         if (liveNeighbors == 2 || liveNeighbors == 3) {
             // stay alive if has 2 or 3 live neighbors
             liveCell->setNextState(true);
@@ -60,14 +60,14 @@ void GameViewModel::determineNextState() {
                 neighbor->setAlive(false);
 
                 // check if neighbor is in liveCell list
-                auto neighborIt = std::find_if(liveCells->begin(), liveCells->end(), [=](Cell *cell) { return ((cell->getPoint().r == neighbor->getPoint().r) && (cell->getPoint().c == neighbor->getPoint().c)); });
+                auto neighborIt = std::find_if(liveCells->begin(), liveCells->end(), [&neighbor](Cell *cell) { return ((cell->getPoint().r == neighbor->getPoint().r) && (cell->getPoint().c == neighbor->getPoint().c)); });
                 if (neighborIt != liveCells->end()) {
                     delete neighbor;
                     continue;
                 }
 
 
-                int liveNeighbors = countLiveNeightborsOf(neighbor);
+                int liveNeighbors = countLiveNeighborsOf(neighbor);
                 if (liveNeighbors == 3) {
                     // give dead cell life
                     neighbor->setNextState(true);
@@ -84,6 +84,9 @@ void GameViewModel::determineNextState() {
 
 void GameViewModel::draw() {
     // undraw live cells
+    for (int i = 0; i < liveCells->size(); i++) {
+        delete liveCells->at(i);
+    }
     liveCells->clear();
 
     // draw new live cells by setting Cell.alive to Cell.nextState
@@ -102,7 +105,7 @@ void GameViewModel::draw() {
     pendingCells->clear();
 }
 
-int GameViewModel::countLiveNeightborsOf(Cell* cell) {
+int GameViewModel::countLiveNeighborsOf(Cell* cell) {
     int liveNeighbors = 0;
 
     // for each neighbor
@@ -123,7 +126,7 @@ int GameViewModel::countLiveNeightborsOf(Cell* cell) {
 }
 
 bool GameViewModel::insertUnique(Cell* cell, std::vector<Cell*> *list) {
-    auto listIt = std::find_if(list->begin(), list->end(), [=](Cell *c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
+    auto listIt = std::find_if(list->begin(), list->end(), [&cell](Cell *c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
     bool found = (list->end() != listIt);
 
     if (!found) {
@@ -134,12 +137,12 @@ bool GameViewModel::insertUnique(Cell* cell, std::vector<Cell*> *list) {
 }
 
 bool GameViewModel::removeUnique(Cell* cell, std::vector<Cell*> *list) {
-    auto listIt = std::find_if(list->begin(), list->end(), [=](Cell *c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
+    auto listIt = std::find_if(list->begin(), list->end(), [&cell](Cell *c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
     bool found = (list->end() != listIt);
 
     if (found) {
         Cell *c = *listIt;
-        list->erase(listIt);
+        list->erase(std::remove_if(list->begin(), list->end(), [&c](Cell *listCell){ return (listCell == c); }), list->end());
         delete c;
     }
 
@@ -147,12 +150,13 @@ bool GameViewModel::removeUnique(Cell* cell, std::vector<Cell*> *list) {
 }
 
 bool GameViewModel::removeUnique(int r, int c, std::vector<Cell*> *list) {
-    auto listIt = std::find_if(list->begin(), list->end(), [=](Cell *cell) { return (r == cell->getPoint().r) && (c == cell->getPoint().c); });
+    auto listIt = std::find_if(list->begin(), list->end(), [r, c](Cell *cell) { return (r == cell->getPoint().r) && (c == cell->getPoint().c); });
     bool found = (list->end() != listIt);
 
     if (found) {
         Cell *cell = *listIt;
-        list->erase(listIt);
+        //list->erase(listIt);
+        list->erase(std::remove_if(list->begin(), list->end(), [&cell](Cell *listCell){ return (listCell == cell); }), list->end());
         delete cell;
     }
 
@@ -198,7 +202,7 @@ std::vector<Cell*> *GameViewModel::getPrevCells() {
 
 // meant for player interaction
 void GameViewModel::toggleAlive(int r, int c) {
-    bool cellNotFound = (liveCells->end() == std::find_if(liveCells->begin(), liveCells->end(), [=](Cell *cell) { return (cell->getPoint().r == r) && (cell->getPoint().c == c); }));
+    bool cellNotFound = (liveCells->end() == std::find_if(liveCells->begin(), liveCells->end(), [r, c](Cell *cell) { return (cell->getPoint().r == r) && (cell->getPoint().c == c); }));
     if (cellNotFound) {
         Cell *newCell = new Cell(r, c);
         if (!insertUnique(newCell, liveCells)) {
@@ -223,7 +227,7 @@ void GameViewModel::saveLiveCells() {
     prevCells->clear();
     prevCells->resize(liveCells->size());
 
-    std::transform(liveCells->begin(), liveCells->end(), prevCells->begin(), [=](Cell *cell) { return new Cell(*cell); });
+    std::transform(liveCells->begin(), liveCells->end(), prevCells->begin(), [](Cell *cell) { return new Cell(*cell); });
 
 }
 

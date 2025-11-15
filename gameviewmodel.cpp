@@ -45,7 +45,10 @@ void GameViewModel::determineNextState() {
             // die if has more or less neighbors
             liveCell->setNextState(false);
         }
-        insertUnique(new Cell(*liveCell), pendingCells);
+        Cell *newCell = new Cell(*liveCell);
+        if (!insertUnique(newCell, pendingCells)) {
+            delete newCell;
+        }
 
         // for each neighbor
         for (int c = -1; c <= 1; c++) {
@@ -197,11 +200,17 @@ std::vector<Cell*> *GameViewModel::getPrevCells() {
 void GameViewModel::toggleAlive(int r, int c) {
     bool cellNotFound = (liveCells->end() == std::find_if(liveCells->begin(), liveCells->end(), [=](Cell *cell) { return (cell->getPoint().r == r) && (cell->getPoint().c == c); }));
     if (cellNotFound) {
-        insertUnique(new Cell(r, c), liveCells);
+        Cell *newCell = new Cell(r, c);
+        if (!insertUnique(newCell, liveCells)) {
+            delete newCell;
+        }
         emit liveCellsUpdated();
     } else {
         removeUnique(r, c, liveCells);
-        insertUnique(new Cell(r, c), prevCells);
+        Cell *newCell = new Cell(r, c);
+        if (!insertUnique(newCell, prevCells)) {
+            delete newCell;
+        }
         emit liveCellsUpdated();
         removeUnique(r, c, prevCells);
     }
@@ -324,14 +333,24 @@ void GameViewModel::loadConfig(QString fileName) {
         if (parts.size() != 3)
             continue;
 
+        Cell *newCell = new Cell(parts[1].toInt(), parts[2].toInt());
+
         if (parts[0] == 'L') {
-            insertUnique(new Cell(parts[1].toInt(), parts[2].toInt()), liveCells);
+            if (!insertUnique(newCell, liveCells)) {
+                delete newCell;
+            }
         } else if (parts[0] == 'N') {
-            insertUnique(new Cell(parts[1].toInt(), parts[2].toInt()), pendingCells);
+            if (!insertUnique(newCell, pendingCells)) {
+                delete newCell;
+            }
         } else if (parts[0] == 'P') {
-            insertUnique(new Cell(parts[1].toInt(), parts[2].toInt()), prevCells);
+            if (!insertUnique(newCell, prevCells)) {
+                delete newCell;
+            }
         } else if (parts[0] == 'I') {
-            insertUnique(new Cell(parts[1].toInt(), parts[2].toInt()), initialCells);
+            if (!insertUnique(newCell, initialCells)) {
+                delete newCell;
+            }
         }
     }
 

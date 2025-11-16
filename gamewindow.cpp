@@ -143,20 +143,20 @@ void GameWindow::draw() {
     // get UI cells at (r,c) from live and prev cell lists
     // an intercection of prev and live will remain alive
     // the remaining prev cell should die, the remaining live cells should resurrect
-    std::vector<Cell*> *liveCells = viewModel->getLiveCells();
-    std::vector<Cell*> *prevCells = viewModel->getPrevCells();
-    std::vector<Cell*> cellsToKill(prevCells->size());
-    std::vector<Cell*> cellsToRes(liveCells->size());
-    auto killIt = std::copy_if(prevCells->begin(), prevCells->end(), cellsToKill.begin(), [&](Cell *cell) {
+    std::vector<std::shared_ptr<Cell>> *liveCells = viewModel->getLiveCells();
+    std::vector<std::shared_ptr<Cell>> *prevCells = viewModel->getPrevCells();
+    std::vector<std::shared_ptr<Cell>> cellsToKill(prevCells->size());
+    std::vector<std::shared_ptr<Cell>> cellsToRes(liveCells->size());
+    auto killIt = std::copy_if(prevCells->begin(), prevCells->end(), cellsToKill.begin(), [&](std::shared_ptr<Cell> cell) {
         // copy if cell not found in both prev and live cell lists
-        auto liveIt = std::find_if(liveCells->begin(), liveCells->end(), [&](Cell *otherCell) {
+        auto liveIt = std::find_if(liveCells->begin(), liveCells->end(), [&](std::shared_ptr<Cell> otherCell) {
             return ((cell->getPoint().r == otherCell->getPoint().r) && (cell->getPoint().c == otherCell->getPoint().c));
         });
         return (liveIt == liveCells->end());
     });
-    auto resIt = std::copy_if(liveCells->begin(), liveCells->end(), cellsToRes.begin(), [&](Cell *cell) {
+    auto resIt = std::copy_if(liveCells->begin(), liveCells->end(), cellsToRes.begin(), [&](std::shared_ptr<Cell> cell) {
         // copy if cell not found in both prev and live cell lists
-        auto prevIt = std::find_if(prevCells->begin(), prevCells->end(), [&](Cell *otherCell) {
+        auto prevIt = std::find_if(prevCells->begin(), prevCells->end(), [&](std::shared_ptr<Cell> otherCell) {
             return ((cell->getPoint().r == otherCell->getPoint().r) && (cell->getPoint().c == otherCell->getPoint().c));
         });
         return (prevIt == prevCells->end());

@@ -13,7 +13,7 @@ class ConfigHandler : public QObject
 public:
     ~ConfigHandler();
     static ConfigHandler *getInstance();
-    void saveBoard(QString fileName, std::vector<Cell*> *liveCells, std::vector<Cell*> *pendingCells, std::vector<Cell*> *initialCells, std::vector<Cell*> *prevCells);
+    void saveBoard(QString fileName, std::vector<std::shared_ptr<Cell>> *liveCells, std::vector<std::shared_ptr<Cell>> *pendingCells, std::vector<std::shared_ptr<Cell>> *initialCells, std::vector<std::shared_ptr<Cell>> *prevCells);
     void loadBoard(QString fileName, QStringList &lines);
     QStringList getConfigNames();
 

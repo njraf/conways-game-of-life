@@ -12,10 +12,10 @@ class GameViewModel : public QObject
 {
     Q_OBJECT
 private:
-    std::vector<Cell*> *liveCells;
-    std::vector<Cell*> *pendingCells; // liveCells for next turn
-    std::vector<Cell*> *initialCells;
-    std::vector<Cell*> *prevCells; // live cells from the turn
+    std::vector<std::shared_ptr<Cell>> *liveCells;
+    std::vector<std::shared_ptr<Cell>> *pendingCells; // liveCells for next turn
+    std::vector<std::shared_ptr<Cell>> *initialCells;
+    std::vector<std::shared_ptr<Cell>> *prevCells; // live cells from the turn
     int gameSpeed; // 0-10; (1000ms - gameSpeed * 100) == sleep time between ticks
     int turn;
     bool playing;
@@ -27,16 +27,16 @@ public:
     void tick(); // one frame of game loop
     void determineNextState(); // determines value of Cell*.nextState
     void draw(); // sets Square.alive to Cell*.nextState
-    int countLiveNeighborsOf(Cell* cell);
-    bool insertUnique(Cell* cell, std::vector<Cell*> *list); // insert cell only if the cell does not exist in the list already
-    bool removeUnique(Cell* cell, std::vector<Cell*> *list);
-    bool removeUnique(int x, int y, std::vector<Cell*> *list);
+    int countLiveNeighborsOf(std::shared_ptr<Cell> cell);
+    bool insertUnique(std::shared_ptr<Cell> cell, std::vector<std::shared_ptr<Cell>> *list); // insert cell only if the cell does not exist in the list already
+    bool removeUnique(std::shared_ptr<Cell> cell, std::vector<std::shared_ptr<Cell>> *list);
+    bool removeUnique(int x, int y, std::vector<std::shared_ptr<Cell>> *list);
     void printLiveCells(); // cmd line print x,y locations of live cells
     bool isPlaying();
     int getTurn();
-    std::vector<Cell*> *getLiveCells();
-    std::vector<Cell*> *getInitCells();
-    std::vector<Cell*> *getPrevCells();
+    std::vector<std::shared_ptr<Cell>> *getLiveCells();
+    std::vector<std::shared_ptr<Cell>> *getInitCells();
+    std::vector<std::shared_ptr<Cell>> *getPrevCells();
     void toggleAlive(int x, int y);
     void saveLiveCells(); // copy liveCells to prevCells
 

@@ -5,10 +5,10 @@ GameViewModel::GameViewModel()
     turn = 0;
     gameSpeed = 0;
     playing = false;
-    liveCells = new std::vector<Cell*>();
-    pendingCells = new std::vector<Cell*>();
-    initialCells = new std::vector<Cell*>();
-    prevCells = new std::vector<Cell*>();
+    liveCells = new std::vector<std::shared_ptr<Cell>>();
+    pendingCells = new std::vector<std::shared_ptr<Cell>>();
+    initialCells = new std::vector<std::shared_ptr<Cell>>();
+    prevCells = new std::vector<std::shared_ptr<Cell>>();
     connect(&turnTimer, &QTimer::timeout, this, &GameViewModel::tick);
 }
 
@@ -36,7 +36,7 @@ void GameViewModel::tick() {
 void GameViewModel::determineNextState() {
     // for each live cell
     for (int i = 0; i < liveCells->size(); i++) {
-        Cell *liveCell = liveCells->at(i);
+        std::shared_ptr<Cell> liveCell = liveCells->at(i);
         int liveNeighbors = countLiveNeighborsOf(liveCell);
         if (liveNeighbors == 2 || liveNeighbors == 3) {
             // stay alive if has 2 or 3 live neighbors
@@ -45,10 +45,8 @@ void GameViewModel::determineNextState() {
             // die if has more or less neighbors
             liveCell->setNextState(false);
         }
-        Cell *newCell = new Cell(*liveCell);
-        if (!insertUnique(newCell, pendingCells)) {
-            delete newCell;
-        }
+        std::shared_ptr<Cell> newCell = std::make_shared<Cell>(*liveCell);
+        insertUnique(newCell, pendingCells);
 
         // for each neighbor
         for (int c = -1; c <= 1; c++) {
@@ -56,13 +54,12 @@ void GameViewModel::determineNextState() {
                 if (r == 0 && c == 0) continue; // if self
 
                 // a dead neighbor to a living cell
-                Cell *neighbor = new Cell(liveCell->getPoint().r + r, liveCell->getPoint().c + c);
+                std::shared_ptr<Cell> neighbor = std::make_shared<Cell>(liveCell->getPoint().r + r, liveCell->getPoint().c + c);
                 neighbor->setAlive(false);
 
                 // check if neighbor is in liveCell list
-                auto neighborIt = std::find_if(liveCells->begin(), liveCells->end(), [&neighbor](Cell *cell) { return ((cell->getPoint().r == neighbor->getPoint().r) && (cell->getPoint().c == neighbor->getPoint().c)); });
+                auto neighborIt = std::find_if(liveCells->begin(), liveCells->end(), [&neighbor](std::shared_ptr<Cell> cell) { return ((cell->getPoint().r == neighbor->getPoint().r) && (cell->getPoint().c == neighbor->getPoint().c)); });
                 if (neighborIt != liveCells->end()) {
-                    delete neighbor;
                     continue;
                 }
 
@@ -71,11 +68,7 @@ void GameViewModel::determineNextState() {
                 if (liveNeighbors == 3) {
                     // give dead cell life
                     neighbor->setNextState(true);
-                    if (!insertUnique(neighbor, pendingCells)) {
-                        delete neighbor;
-                    }
-                } else {
-                    delete neighbor;
+                    insertUnique(neighbor, pendingCells);
                 }
             }
         }
@@ -84,28 +77,21 @@ void GameViewModel::determineNextState() {
 
 void GameViewModel::draw() {
     // undraw live cells
-    for (int i = 0; i < liveCells->size(); i++) {
-        delete liveCells->at(i);
-    }
     liveCells->clear();
 
     // draw new live cells by setting Cell.alive to Cell.nextState
     for (int i = 0; i < pendingCells->size(); i++) {
-        Cell *cell = new Cell(*pendingCells->at(i));
+        std::shared_ptr<Cell> cell = std::make_shared<Cell>(*pendingCells->at(i));
         cell->setAlive(cell->getNextState());
         if (cell->getAlive()) {
-            if (!insertUnique(cell, liveCells)) {
-                delete cell;
-            }
-        } else {
-            delete cell;
+            insertUnique(cell, liveCells);
         }
     }
 
     pendingCells->clear();
 }
 
-int GameViewModel::countLiveNeighborsOf(Cell* cell) {
+int GameViewModel::countLiveNeighborsOf(std::shared_ptr<Cell> cell) {
     int liveNeighbors = 0;
 
     // for each neighbor
@@ -114,19 +100,19 @@ int GameViewModel::countLiveNeighborsOf(Cell* cell) {
             if (r == 0 && c == 0) continue; // if self
 
             // check if neighbor is in the liveCells list
-            for (std::vector<Cell*>::iterator it = liveCells->begin(); it != liveCells->end(); it++) {
+            for (std::vector<std::shared_ptr<Cell>>::iterator it = liveCells->begin(); it != liveCells->end(); it++) {
                 if ((*it)->getPoint().r == cell->getPoint().r + r && (*it)->getPoint().c == cell->getPoint().c + c) {
                     liveNeighbors++;
                 }
             }
         }
     }
-    //std::cout << "Cell* (" << cell.getPoint().r << "," << cell.getPoint().c << ") has " << liveNeighbors << " live neighbors" << std::endl;
+    //std::cout << "std::shared_ptr<Cell> (" << cell.getPoint().r << "," << cell.getPoint().c << ") has " << liveNeighbors << " live neighbors" << std::endl;
     return liveNeighbors;
 }
 
-bool GameViewModel::insertUnique(Cell* cell, std::vector<Cell*> *list) {
-    auto listIt = std::find_if(list->begin(), list->end(), [&cell](Cell *c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
+bool GameViewModel::insertUnique(std::shared_ptr<Cell> cell, std::vector<std::shared_ptr<Cell>> *list) {
+    auto listIt = std::find_if(list->begin(), list->end(), [&cell](std::shared_ptr<Cell> c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
     bool found = (list->end() != listIt);
 
     if (!found) {
@@ -136,28 +122,25 @@ bool GameViewModel::insertUnique(Cell* cell, std::vector<Cell*> *list) {
     return !found; // whether the cell was pushed to the list
 }
 
-bool GameViewModel::removeUnique(Cell* cell, std::vector<Cell*> *list) {
-    auto listIt = std::find_if(list->begin(), list->end(), [&cell](Cell *c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
+bool GameViewModel::removeUnique(std::shared_ptr<Cell> cell, std::vector<std::shared_ptr<Cell>> *list) {
+    auto listIt = std::find_if(list->begin(), list->end(), [&cell](std::shared_ptr<Cell> c) { return (cell->getPoint().r == c->getPoint().r) && (cell->getPoint().c == c->getPoint().c); });
     bool found = (list->end() != listIt);
 
     if (found) {
-        Cell *c = *listIt;
-        list->erase(std::remove_if(list->begin(), list->end(), [&c](Cell *listCell){ return (listCell == c); }), list->end());
-        delete c;
+        std::shared_ptr<Cell> c = *listIt;
+        list->erase(std::remove_if(list->begin(), list->end(), [&c](std::shared_ptr<Cell> listCell){ return (listCell == c); }), list->end());
     }
 
     return found; // whether the cell was removed from the list
 }
 
-bool GameViewModel::removeUnique(int r, int c, std::vector<Cell*> *list) {
-    auto listIt = std::find_if(list->begin(), list->end(), [r, c](Cell *cell) { return (r == cell->getPoint().r) && (c == cell->getPoint().c); });
+bool GameViewModel::removeUnique(int r, int c, std::vector<std::shared_ptr<Cell>> *list) {
+    auto listIt = std::find_if(list->begin(), list->end(), [r, c](std::shared_ptr<Cell> cell) { return (r == cell->getPoint().r) && (c == cell->getPoint().c); });
     bool found = (list->end() != listIt);
 
     if (found) {
-        Cell *cell = *listIt;
-        //list->erase(listIt);
-        list->erase(std::remove_if(list->begin(), list->end(), [&cell](Cell *listCell){ return (listCell == cell); }), list->end());
-        delete cell;
+        std::shared_ptr<Cell> cell = *listIt;
+        list->erase(std::remove_if(list->begin(), list->end(), [&cell](std::shared_ptr<Cell> listCell){ return (listCell == cell); }), list->end());
     }
 
     return found;
@@ -166,7 +149,7 @@ bool GameViewModel::removeUnique(int r, int c, std::vector<Cell*> *list) {
 void GameViewModel::printLiveCells() {
     std::cout << "Step " << turn << std::endl;
     for (int i = 0; i < liveCells->size(); i++) {
-        Cell *cell = liveCells->at(i);
+        std::shared_ptr<Cell> cell = liveCells->at(i);
         std::cout << "(" << cell->getPoint().r << "," << cell->getPoint().c << ")" << std::endl;
     }
     std::cout << std::endl;
@@ -188,46 +171,39 @@ void GameViewModel::setSpeed(int speed) {
     }
 }
 
-std::vector<Cell*> *GameViewModel::getLiveCells() {
+std::vector<std::shared_ptr<Cell>> *GameViewModel::getLiveCells() {
     return liveCells;
 }
 
-std::vector<Cell*> *GameViewModel::getInitCells() {
+std::vector<std::shared_ptr<Cell>> *GameViewModel::getInitCells() {
     return initialCells;
 }
 
-std::vector<Cell*> *GameViewModel::getPrevCells() {
+std::vector<std::shared_ptr<Cell>> *GameViewModel::getPrevCells() {
     return prevCells;
 }
 
 // meant for player interaction
 void GameViewModel::toggleAlive(int r, int c) {
-    bool cellNotFound = (liveCells->end() == std::find_if(liveCells->begin(), liveCells->end(), [r, c](Cell *cell) { return (cell->getPoint().r == r) && (cell->getPoint().c == c); }));
+    bool cellNotFound = (liveCells->end() == std::find_if(liveCells->begin(), liveCells->end(), [r, c](std::shared_ptr<Cell> cell) { return (cell->getPoint().r == r) && (cell->getPoint().c == c); }));
     if (cellNotFound) {
-        Cell *newCell = new Cell(r, c);
-        if (!insertUnique(newCell, liveCells)) {
-            delete newCell;
-        }
+        std::shared_ptr<Cell> newCell = std::make_shared<Cell>(r, c);
+        insertUnique(newCell, liveCells);
         emit liveCellsUpdated();
     } else {
         removeUnique(r, c, liveCells);
-        Cell *newCell = new Cell(r, c);
-        if (!insertUnique(newCell, prevCells)) {
-            delete newCell;
-        }
+        std::shared_ptr<Cell> newCell = std::make_shared<Cell>(r, c);
+        insertUnique(newCell, prevCells);
         emit liveCellsUpdated();
         removeUnique(r, c, prevCells);
     }
 }
 
 void GameViewModel::saveLiveCells() {
-    for (int i = 0; i < prevCells->size(); i++) {
-        delete prevCells->at(i);
-    }
     prevCells->clear();
     prevCells->resize(liveCells->size());
 
-    std::transform(liveCells->begin(), liveCells->end(), prevCells->begin(), [](Cell *cell) { return new Cell(*cell); });
+    std::transform(liveCells->begin(), liveCells->end(), prevCells->begin(), [](std::shared_ptr<Cell> cell) { return std::make_shared<Cell>(*cell); });
 
 }
 
@@ -239,12 +215,9 @@ void GameViewModel::play() {
     }
     playing = true;
     if (turn == 0) {
-        for (int i = 0; i < initialCells->size(); i++) {
-            delete initialCells->at(i);
-        }
         initialCells->clear();
         for (int i = 0; i < liveCells->size(); i++) {
-            initialCells->push_back(new Cell(*liveCells->at(i)));
+            initialCells->push_back(std::make_shared<Cell>(*liveCells->at(i)));
         }
     }
 
@@ -260,12 +233,9 @@ void GameViewModel::stop() {
 
 void GameViewModel::next() {
     if (turn == 0) {
-        for (int i = 0; i < initialCells->size(); i++) {
-            delete initialCells->at(i);
-        }
         initialCells->clear();
         for (int i = 0; i < liveCells->size(); i++) {
-            initialCells->push_back(new Cell(*liveCells->at(i)));
+            initialCells->push_back(std::make_shared<Cell>(*liveCells->at(i)));
         }
     }
 
@@ -274,47 +244,26 @@ void GameViewModel::next() {
 
 void GameViewModel::reset() {
     turn = 0;
-    for (int i = 0; i < liveCells->size(); i++) {
-        delete liveCells->at(i);
-    }
     liveCells->clear();
 
-    for (int i = 0; i < pendingCells->size(); i++) {
-        delete pendingCells->at(i);
-    }
     pendingCells->clear();
 
     for (int i = 0; i < initialCells->size(); i++) {
-        liveCells->push_back(new Cell(*initialCells->at(i)));
+        liveCells->push_back(std::make_shared<Cell>(*initialCells->at(i)));
     }
 
-    for (int i = 0; i < prevCells->size(); i++) {
-        delete prevCells->at(i);
-    }
     prevCells->clear();
 
     emit resetBoard();
 }
 
 void GameViewModel::clear() {
-    for (int i = 0; i < liveCells->size(); i++) {
-        delete liveCells->at(i);
-    }
     liveCells->clear();
 
-    for (int i = 0; i < initialCells->size(); i++) {
-        delete initialCells->at(i);
-    }
     initialCells->clear();
 
-    for (int i = 0; i < pendingCells->size(); i++) {
-        delete pendingCells->at(i);
-    }
     pendingCells->clear();
 
-    for (int i = 0; i < prevCells->size(); i++) {
-        delete prevCells->at(i);
-    }
     prevCells->clear();
 
     emit clearBoard();
@@ -337,24 +286,16 @@ void GameViewModel::loadConfig(QString fileName) {
         if (parts.size() != 3)
             continue;
 
-        Cell *newCell = new Cell(parts[1].toInt(), parts[2].toInt());
+        std::shared_ptr<Cell> newCell = std::make_shared<Cell>(parts[1].toInt(), parts[2].toInt());
 
         if (parts[0] == 'L') {
-            if (!insertUnique(newCell, liveCells)) {
-                delete newCell;
-            }
+            insertUnique(newCell, liveCells);
         } else if (parts[0] == 'N') {
-            if (!insertUnique(newCell, pendingCells)) {
-                delete newCell;
-            }
+            insertUnique(newCell, pendingCells);
         } else if (parts[0] == 'P') {
-            if (!insertUnique(newCell, prevCells)) {
-                delete newCell;
-            }
+            insertUnique(newCell, prevCells);
         } else if (parts[0] == 'I') {
-            if (!insertUnique(newCell, initialCells)) {
-                delete newCell;
-            }
+            insertUnique(newCell, initialCells);
         }
     }
 

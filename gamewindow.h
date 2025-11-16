@@ -21,7 +21,7 @@ public:
     ~GameWindow();
     void makeBoard();
 
-    QString interpolateColor(QColor color1, QColor color2, float distance);
+    QString interpolateColor(QColor color1, QColor color2, float t);
     QString euclideanDistanceColor(std::shared_ptr<Cell> cell);
     QString diagonalGradiantColor(std::shared_ptr<Cell> cell);
     QString neighborCountColor(std::shared_ptr<Cell> cell);

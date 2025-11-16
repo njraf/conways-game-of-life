@@ -1,10 +1,32 @@
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
 
+#include <QVector>
+
 QColor lightBlue(0, 191, 255);
+QColor lightBlue2(173, 216, 230);
 QColor darkBlue(0, 0, 139);
+QColor cyan(0, 255, 255);
 QColor lightGreen(0, 255, 0);
-QColor darkGreen(139, 0, 0);
+QColor darkGreen(0, 100, 0);
+QColor lightYellow(255, 255, 100);
+//QColor darkYellow(139, 139, 100);
+QColor lightRed(255, 0, 0);
+QColor darkRed(139, 0, 0);
+QColor hotPink(255, 0, 127);
+QColor lightPink(255, 182, 193);
+QColor magenta(255, 0, 255);
+QColor indigo(75, 0, 130);
+QColor white(255, 255, 255);
+
+QVector<QPair<QColor, QColor>> colors {
+{lightYellow, lightRed}, //fireColors
+{magenta, indigo}, // lightPurpleColors
+{lightGreen, darkGreen}, // hackerGreenColors
+{lightBlue, darkBlue} // oceanColors
+};
+
+QPair<QColor, QColor> colorPair;
 
 GameWindow::GameWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -78,6 +100,9 @@ GameWindow::GameWindow(QWidget *parent)
     connect(ui->actionR_pentomino, SIGNAL(triggered()), this, SLOT(generateRPentomino()));
     connect(ui->actionDie_Hard, SIGNAL(triggered()), this, SLOT(generateDieHard()));
     connect(ui->actionAcorn, SIGNAL(triggered()), this, SLOT(generateAcorn()));
+
+    srand(time(0));
+    colorPair = colors.at(rand() % colors.size());
 
     makeBoard();
 }
@@ -210,10 +235,10 @@ void GameWindow::clearBoard() {
     }
 }
 
-QString GameWindow::interpolateColor(QColor color1, QColor color2, float distance) {
-    uint8_t num1 = static_cast<uint8_t>(static_cast<float>(color1.red()) + distance * (static_cast<float>(color2.red()) - static_cast<float>(color1.red())));
-    uint8_t num2 = static_cast<uint8_t>(static_cast<float>(color1.green()) + distance * (static_cast<float>(color2.green()) - static_cast<float>(color1.green())));
-    uint8_t num3 = static_cast<uint8_t>(static_cast<float>(color1.blue()) + distance * (static_cast<float>(color2.blue()) - static_cast<float>(color1.blue())));
+QString GameWindow::interpolateColor(QColor color1, QColor color2, float t) {
+    uint8_t num1 = static_cast<uint8_t>(static_cast<float>(color1.red()) + t * (static_cast<float>(color2.red()) - static_cast<float>(color1.red())));
+    uint8_t num2 = static_cast<uint8_t>(static_cast<float>(color1.green()) + t * (static_cast<float>(color2.green()) - static_cast<float>(color1.green())));
+    uint8_t num3 = static_cast<uint8_t>(static_cast<float>(color1.blue()) + t * (static_cast<float>(color2.blue()) - static_cast<float>(color1.blue())));
 
     QString result = "";
     QString hex = QString::number(num1, 16);
@@ -262,7 +287,8 @@ QString GameWindow::diagonalGradiantColor(std::shared_ptr<Cell> cell) {
 
 QString GameWindow::neighborCountColor(std::shared_ptr<Cell> cell) {
     const int neighborCount = viewModel->countLiveNeighborsOf(cell);
-    return interpolateColor(lightBlue, darkBlue, neighborCount);
+    const float t = static_cast<float>(neighborCount) / 9.0f;
+    return interpolateColor(colorPair.first, colorPair.second, t);
 }
 
 // menu actions
@@ -274,7 +300,8 @@ void GameWindow::generateRandom() {
     viewModel->clear();
     clearBoard();
 
-    srand(time(0));
+    colorPair = colors.at(rand() % colors.size());
+
     int numCells = rand() % 8 + 5; // 5 - 12
 
     for (int i = 0; i < numCells; i++) {
@@ -290,6 +317,8 @@ void GameWindow::generateRPentomino() {
     viewModel->reset();
     viewModel->clear();
     clearBoard();
+
+    colorPair = colors.at(rand() % colors.size());
 
     QLayoutItem *layoutItem = ui->board->itemAtPosition(ROWS/2, COLS/2);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
@@ -321,6 +350,8 @@ void GameWindow::generateDieHard() {
     viewModel->reset();
     viewModel->clear();
     clearBoard();
+
+    colorPair = colors.at(rand() % colors.size());
 
     QLayoutItem *layoutItem = ui->board->itemAtPosition(ROWS/2 - 5, COLS/2 - 5);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
@@ -360,6 +391,8 @@ void GameWindow::generateAcorn() {
     viewModel->reset();
     viewModel->clear();
     clearBoard();
+
+    colorPair = colors.at(rand() % colors.size());
 
     QLayoutItem *layoutItem = ui->board->itemAtPosition(ROWS/2, COLS/2);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();

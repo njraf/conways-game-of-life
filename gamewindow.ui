@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>20</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuGenerate">
@@ -60,10 +60,10 @@
     <bool>false</bool>
    </property>
    <property name="features">
-    <set>QDockWidget::NoDockWidgetFeatures</set>
+    <set>QDockWidget::DockWidgetFeature::NoDockWidgetFeatures</set>
    </property>
    <property name="allowedAreas">
-    <set>Qt::NoDockWidgetArea</set>
+    <set>Qt::DockWidgetArea::NoDockWidgetArea</set>
    </property>
    <property name="windowTitle">
     <string/>
@@ -153,7 +153,7 @@ padding: 5px;
         <string>0</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
        <property name="readOnly">
         <bool>true</bool>
@@ -182,7 +182,7 @@ padding: 5px;
           <bool>false</bool>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
          <property name="readOnly">
           <bool>true</bool>
@@ -210,22 +210,25 @@ padding: 5px;
 </string>
          </property>
          <property name="maximum">
-          <number>6</number>
+          <number>15</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
          </property>
          <property name="value">
-          <number>2</number>
+          <number>5</number>
          </property>
          <property name="sliderPosition">
-          <number>2</number>
+          <number>5</number>
          </property>
          <property name="tracking">
           <bool>false</bool>
          </property>
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="tickPosition">
-          <enum>QSlider::TicksBelow</enum>
+          <enum>QSlider::TickPosition::TicksBelow</enum>
          </property>
          <property name="tickInterval">
           <number>0</number>
@@ -259,16 +262,16 @@ padding: 5px;
           <bool>false</bool>
          </property>
          <property name="echoMode">
-          <enum>QLineEdit::Normal</enum>
+          <enum>QLineEdit::EchoMode::Normal</enum>
          </property>
          <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
          <property name="cursorMoveStyle">
-          <enum>Qt::LogicalMoveStyle</enum>
+          <enum>Qt::CursorMoveStyle::LogicalMoveStyle</enum>
          </property>
          <property name="clearButtonEnabled">
           <bool>false</bool>
@@ -308,10 +311,10 @@ padding: 5px;
           <bool>true</bool>
          </property>
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="tickPosition">
-          <enum>QSlider::TicksBelow</enum>
+          <enum>QSlider::TickPosition::TicksBelow</enum>
          </property>
          <property name="tickInterval">
           <number>0</number>

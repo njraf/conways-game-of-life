@@ -1,6 +1,11 @@
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
 
+QColor lightBlue(0, 191, 255);
+QColor darkBlue(0, 0, 139);
+QColor lightGreen(0, 255, 0);
+QColor darkGreen(139, 0, 0);
+
 GameWindow::GameWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::GameWindow)
@@ -185,11 +190,10 @@ void GameWindow::draw() {
         if ((point.r >= ROWS) || (point.c >= COLS) || (point.r < 0) || (point.c < 0)) {
             continue;
         }
-
         QLayoutItem *layoutItem = ui->board->itemAtPosition(point.r, point.c);
         QWidget *item = dynamic_cast<QWidgetItem*>(layoutItem)->widget();
         QString styleSheet = item->styleSheet();
-        styleSheet = "background-color: yellow;";
+        styleSheet = "background-color: #" + neighborCountColor(res) + ";";
         item->setStyleSheet(styleSheet);
     }
 }
@@ -206,6 +210,60 @@ void GameWindow::clearBoard() {
     }
 }
 
+QString GameWindow::interpolateColor(QColor color1, QColor color2, float distance) {
+    uint8_t num1 = static_cast<uint8_t>(static_cast<float>(color1.red()) + distance * (static_cast<float>(color2.red()) - static_cast<float>(color1.red())));
+    uint8_t num2 = static_cast<uint8_t>(static_cast<float>(color1.green()) + distance * (static_cast<float>(color2.green()) - static_cast<float>(color1.green())));
+    uint8_t num3 = static_cast<uint8_t>(static_cast<float>(color1.blue()) + distance * (static_cast<float>(color2.blue()) - static_cast<float>(color1.blue())));
+
+    QString result = "";
+    QString hex = QString::number(num1, 16);
+    if (hex.size() == 1) {
+        hex = "0" + hex;
+    }
+    result += hex;
+
+    hex = QString::number(num2, 16);
+    if (hex.size() == 1) {
+        hex = "0" + hex;
+    }
+    result += hex;
+
+    hex = QString::number(num3, 16);
+    if (hex.size() == 1) {
+        hex = "0" + hex;
+    }
+    result += hex;
+
+    return result;
+}
+
+QString GameWindow::euclideanDistanceColor(std::shared_ptr<Cell> cell) {
+    // Assuming board dimensions are width x height
+    float centerX = COLS / 2.0f;
+    float centerY = ROWS / 2.0f;
+
+    // For each cell at position (x, y):
+    float dx = cell->getPoint().c - centerX;
+    float dy = cell->getPoint().r - centerY;
+    float distance = sqrt(dx * dx + dy * dy);
+
+    // Normalize to 0-1 range
+    float maxDistance = sqrt(centerX * centerX + centerY * centerY);
+    float normalizedDistance = distance / maxDistance;
+
+    // Map to color (e.g., RGB)
+    return interpolateColor(lightGreen, darkGreen, normalizedDistance);
+}
+
+QString GameWindow::diagonalGradiantColor(std::shared_ptr<Cell> cell) {
+    float t = (cell->getPoint().c + cell->getPoint().r) / (float)(COLS + ROWS);
+    return interpolateColor(lightGreen, darkGreen, t);
+}
+
+QString GameWindow::neighborCountColor(std::shared_ptr<Cell> cell) {
+    const int neighborCount = viewModel->countLiveNeighborsOf(cell);
+    return interpolateColor(lightBlue, darkBlue, neighborCount);
+}
 
 // menu actions
 

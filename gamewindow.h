@@ -1,6 +1,7 @@
 #ifndef GAMEWINDOW_H
 #define GAMEWINDOW_H
 
+#include <functional>
 #include <stdlib.h>
 #include <QMainWindow>
 #include <QInputDialog>
@@ -20,6 +21,7 @@ public:
     GameWindow(QWidget *parent = nullptr);
     ~GameWindow();
     void makeBoard();
+    void generateRandomStartingPattern();
 
     QString interpolateColor(QColor color1, QColor color2, float t);
     QString euclideanDistanceColor(std::shared_ptr<Cell> cell);
@@ -31,6 +33,7 @@ private:
     GameViewModel *viewModel;
     int ROWS = 30;
     int COLS = ROWS + (ROWS / 2);
+    QVector<std::function<void()>> patternGenerators;
 
 public slots:
     void toggleAlive(CellWidget *cell); // only for player's toggle

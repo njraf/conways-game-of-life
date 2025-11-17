@@ -243,6 +243,7 @@ void GameViewModel::next() {
 }
 
 void GameViewModel::reset() {
+    stop();
     turn = 0;
     liveCells->clear();
 

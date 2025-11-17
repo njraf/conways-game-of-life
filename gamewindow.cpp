@@ -38,6 +38,11 @@ GameWindow::GameWindow(QWidget *parent)
     ROWS = (ui->gridSizeSlider->value() * 5) + 20;
     COLS = ROWS + (ROWS / 2);
 
+    patternGenerators.push_back(std::bind(&GameWindow::generateAcorn, this));
+    patternGenerators.push_back(std::bind(&GameWindow::generateDieHard, this));
+    patternGenerators.push_back(std::bind(&GameWindow::generateRPentomino, this));
+    patternGenerators.push_back(std::bind(&GameWindow::generateRandom, this));
+
     connect(ui->playButton, SIGNAL(clicked()), this, SLOT(playStop()));
     connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(resetClear()));
     connect(ui->nextButton, SIGNAL(clicked()), this, SLOT(next()));
@@ -104,7 +109,14 @@ GameWindow::GameWindow(QWidget *parent)
     srand(time(0));
     colorPair = colors.at(rand() % colors.size());
 
+    // force speed in the viewmodel and the slider
+    ui->speedSlider->setValue(ui->speedSlider->maximum());
+    viewModel->setSpeed(ui->speedSlider->maximum());
+
     makeBoard();
+
+    generateRandomStartingPattern();
+    playStop();
 }
 
 GameWindow::~GameWindow()
@@ -233,6 +245,11 @@ void GameWindow::clearBoard() {
             item->setStyleSheet(styleSheet);
         }
     }
+}
+
+void GameWindow::generateRandomStartingPattern() {
+    const int index = rand() % patternGenerators.size();
+    patternGenerators[index]();
 }
 
 QString GameWindow::interpolateColor(QColor color1, QColor color2, float t) {

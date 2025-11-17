@@ -112,6 +112,9 @@ GameWindow::GameWindow(QWidget *parent)
     srand(time(0));
     colorPair = colors.at(rand() % colors.size());
 
+    ui->controls->hide();
+    ui->menubar->hide();
+
     makeBoard();
 
     generateRandomStartingPattern();

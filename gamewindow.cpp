@@ -1,6 +1,7 @@
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
 
+#include <cmath>
 #include <QVector>
 
 QColor lightBlue(0, 191, 255);
@@ -35,8 +36,10 @@ GameWindow::GameWindow(QWidget *parent)
 {
     ui->setupUi(this);
     viewModel->setSpeed(ui->speedSlider->value());
+
     ROWS = (ui->gridSizeSlider->value() * 5) + 20;
     COLS = ROWS + (ROWS / 2);
+
 
     patternGenerators.push_back(std::bind(&GameWindow::generateAcorn, this));
     patternGenerators.push_back(std::bind(&GameWindow::generateDieHard, this));
@@ -108,10 +111,6 @@ GameWindow::GameWindow(QWidget *parent)
 
     srand(time(0));
     colorPair = colors.at(rand() % colors.size());
-
-    // force speed in the viewmodel and the slider
-    ui->speedSlider->setValue(ui->speedSlider->maximum());
-    viewModel->setSpeed(ui->speedSlider->maximum());
 
     makeBoard();
 

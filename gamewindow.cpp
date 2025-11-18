@@ -1,6 +1,7 @@
 #include "gamewindow.h"
 #include "ui_gamewindow.h"
 
+#include <algorithm>
 #include <cmath>
 #include <QVector>
 
@@ -153,6 +154,54 @@ void GameWindow::makeBoard() {
     draw();
 }
 
+bool GameWindow::nextPatternConditionsMet() {
+    static int staleTurnCount = 0;
+    static const int MAX_STALE_TURNS = 5;
+    static const int MAX_TURNS = 500;
+
+    const bool gameExceedsMaxTurns = (viewModel->getTurn() > MAX_TURNS);
+
+    std::vector<std::shared_ptr<Cell>> *liveCells = viewModel->getLiveCells();
+    std::vector<std::shared_ptr<Cell>> *prevCells = viewModel->getPrevCells();
+    if (liveCells == nullptr || prevCells == nullptr) {
+        return false;
+    }
+
+    std::vector<std::shared_ptr<Cell>> visibleLiveCells;
+    std::vector<std::shared_ptr<Cell>> visiblePrevCells;
+    std::copy_if(liveCells->begin(), liveCells->end(), std::back_inserter(visibleLiveCells), [this](std::shared_ptr<Cell> cell) {
+        if (cell->getPoint().r < 0 || cell->getPoint().r >= ROWS || cell->getPoint().c < 0 || cell->getPoint().c >= COLS) {
+            return false;
+        }
+        return true;
+    });
+    std::copy_if(prevCells->begin(), prevCells->end(), std::back_inserter(visiblePrevCells), [this](std::shared_ptr<Cell> cell) {
+        if (cell->getPoint().r < 0 || cell->getPoint().r >= ROWS || cell->getPoint().c < 0 || cell->getPoint().c >= COLS) {
+            return false;
+        }
+        return true;
+    });
+
+    const bool sameLiveCellCount = (visibleLiveCells.size() == visiblePrevCells.size());
+    const bool emptyBoard = (visibleLiveCells.size() == 0);
+
+    if (gameExceedsMaxTurns ||
+        sameLiveCellCount ||
+        emptyBoard
+        ) {
+        staleTurnCount++;
+    } else {
+        staleTurnCount = 0;
+    }
+
+    if (MAX_STALE_TURNS <= staleTurnCount) {
+        staleTurnCount = 0;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 // player toggle only
 void GameWindow::toggleAlive(CellWidget *cell) {
     if (viewModel->isPlaying()) return;
@@ -184,6 +233,15 @@ void GameWindow::resetClear() {
 }
 
 void GameWindow::draw() {
+    if (viewModel->getTurn() > 0 && nextPatternConditionsMet()) {
+        viewModel->stop();
+        viewModel->reset();
+        viewModel->clear();
+        generateRandomStartingPattern();
+        viewModel->play();
+        return;
+    }
+
     // get UI cells at (r,c) from live and prev cell lists
     // an intercection of prev and live will remain alive
     // the remaining prev cell should die, the remaining live cells should resurrect

@@ -22,6 +22,7 @@ public:
     ~GameWindow();
     void makeBoard();
     void generateRandomStartingPattern();
+    bool nextPatternConditionsMet();
 
     QString interpolateColor(QColor color1, QColor color2, float t);
     QString euclideanDistanceColor(std::shared_ptr<Cell> cell);

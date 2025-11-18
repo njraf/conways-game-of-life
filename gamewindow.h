@@ -23,6 +23,7 @@ public:
     void makeBoard();
     void generateRandomStartingPattern();
     bool nextPatternConditionsMet();
+    void chooseNextColor();
 
     QString interpolateColor(QColor color1, QColor color2, float t);
     QString euclideanDistanceColor(std::shared_ptr<Cell> cell);
@@ -35,6 +36,7 @@ private:
     int ROWS = 30;
     int COLS = ROWS + (ROWS / 2);
     QVector<std::function<void()>> patternGenerators;
+    int currentColorIndex;
 
 public slots:
     void toggleAlive(CellWidget *cell); // only for player's toggle

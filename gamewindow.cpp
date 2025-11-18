@@ -34,6 +34,7 @@ GameWindow::GameWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::GameWindow)
     , viewModel(new GameViewModel())
+    , currentColorIndex(0)
 {
     ui->setupUi(this);
     viewModel->setSpeed(ui->speedSlider->value());
@@ -111,7 +112,8 @@ GameWindow::GameWindow(QWidget *parent)
     connect(ui->actionAcorn, SIGNAL(triggered()), this, SLOT(generateAcorn()));
 
     srand(time(0));
-    colorPair = colors.at(rand() % colors.size());
+    currentColorIndex = rand() % colors.size();
+    colorPair = colors.at(currentColorIndex);
 
     ui->controls->hide();
     ui->menubar->hide();
@@ -307,8 +309,18 @@ void GameWindow::clearBoard() {
     }
 }
 
+void GameWindow::chooseNextColor() {
+    int colorIndex = rand() % colors.size();
+    while (currentColorIndex == colorIndex) {
+        colorIndex = rand() % colors.size();
+    }
+    currentColorIndex = colorIndex;
+    colorPair = colors.at(currentColorIndex);
+}
+
 void GameWindow::generateRandomStartingPattern() {
     const int index = rand() % patternGenerators.size();
+    chooseNextColor();
     patternGenerators[index]();
 }
 
@@ -377,8 +389,6 @@ void GameWindow::generateRandom() {
     viewModel->clear();
     clearBoard();
 
-    colorPair = colors.at(rand() % colors.size());
-
     int numCells = rand() % 8 + 5; // 5 - 12
 
     for (int i = 0; i < numCells; i++) {
@@ -394,8 +404,6 @@ void GameWindow::generateRPentomino() {
     viewModel->reset();
     viewModel->clear();
     clearBoard();
-
-    colorPair = colors.at(rand() % colors.size());
 
     QLayoutItem *layoutItem = ui->board->itemAtPosition(ROWS/2, COLS/2);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
@@ -427,8 +435,6 @@ void GameWindow::generateDieHard() {
     viewModel->reset();
     viewModel->clear();
     clearBoard();
-
-    colorPair = colors.at(rand() % colors.size());
 
     QLayoutItem *layoutItem = ui->board->itemAtPosition(ROWS/2 - 5, COLS/2 - 5);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();
@@ -468,8 +474,6 @@ void GameWindow::generateAcorn() {
     viewModel->reset();
     viewModel->clear();
     clearBoard();
-
-    colorPair = colors.at(rand() % colors.size());
 
     QLayoutItem *layoutItem = ui->board->itemAtPosition(ROWS/2, COLS/2);
     CellWidget *anchor = (CellWidget*)dynamic_cast<QWidgetItem*>(layoutItem)->widget();

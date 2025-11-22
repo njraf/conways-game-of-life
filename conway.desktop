@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Conway
+Exec=/home/conway/conways-game-of-life/Conways_game_of_life
+X-GNOME-Autostart-enabled=true

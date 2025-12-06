@@ -34,7 +34,6 @@ GameWindow::GameWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::GameWindow)
     , viewModel(new GameViewModel())
-    , currentColorIndex(0)
 {
     ui->setupUi(this);
     viewModel->setSpeed(ui->speedSlider->value());
@@ -43,10 +42,10 @@ GameWindow::GameWindow(QWidget *parent)
     COLS = ROWS + (ROWS / 2);
 
 
+    patternGenerators.push_back(std::bind(&GameWindow::generateRandom, this));
     patternGenerators.push_back(std::bind(&GameWindow::generateAcorn, this));
     patternGenerators.push_back(std::bind(&GameWindow::generateDieHard, this));
     patternGenerators.push_back(std::bind(&GameWindow::generateRPentomino, this));
-    patternGenerators.push_back(std::bind(&GameWindow::generateRandom, this));
 
     connect(ui->playButton, SIGNAL(clicked()), this, SLOT(playStop()));
     connect(ui->resetButton, SIGNAL(clicked()), this, SLOT(resetClear()));
@@ -112,8 +111,8 @@ GameWindow::GameWindow(QWidget *parent)
     connect(ui->actionAcorn, SIGNAL(triggered()), this, SLOT(generateAcorn()));
 
     srand(time(0));
-    currentColorIndex = rand() % colors.size();
-    colorPair = colors.at(currentColorIndex);
+    const int colorIndex = rand() % colors.size();
+    colorPair = colors.at(colorIndex);
 
     ui->controls->hide();
     ui->menubar->hide();
@@ -309,17 +308,52 @@ void GameWindow::clearBoard() {
     }
 }
 
+int GameWindow::chooseNextPattern() {
+    int index = rand() % patternGenerators.size();
+    int randomPatternAttempts = 0;
+    const int MAX_PATTERN_ATTEMPTS = 10;
+    const int MAX_BANNED_PATTERNS = 2;
+
+    while (bannedPatternQueue.contains(index) && randomPatternAttempts < MAX_PATTERN_ATTEMPTS) {
+        index = rand() % patternGenerators.size();
+        randomPatternAttempts++;
+    }
+
+    if (randomPatternAttempts >= MAX_PATTERN_ATTEMPTS) {
+        index = 0;
+    }
+
+    if (index != 0) {
+        if (bannedPatternQueue.size() >= MAX_BANNED_PATTERNS) {
+            bannedPatternQueue.dequeue();
+        }
+        bannedPatternQueue.enqueue(index);
+    }
+
+    return index;
+}
+
 void GameWindow::chooseNextColor() {
     int colorIndex = rand() % colors.size();
-    while (currentColorIndex == colorIndex) {
+    int randomColorAttempts = 0;
+    const int MAX_COLOR_ATTEMPTS = 10;
+    const int MAX_BANNED_COLORS = 2;
+
+    while (bannedColorQueue.contains(colorIndex) && randomColorAttempts < MAX_COLOR_ATTEMPTS) {
         colorIndex = rand() % colors.size();
+        randomColorAttempts++;
     }
-    currentColorIndex = colorIndex;
-    colorPair = colors.at(currentColorIndex);
+
+    if (bannedColorQueue.size() >= MAX_BANNED_COLORS) {
+        bannedColorQueue.dequeue();
+    }
+    bannedColorQueue.enqueue(colorIndex);
+
+    colorPair = colors.at(colorIndex);
 }
 
 void GameWindow::generateRandomStartingPattern() {
-    const int index = rand() % patternGenerators.size();
+    const int index = chooseNextPattern();
     chooseNextColor();
     patternGenerators[index]();
 }

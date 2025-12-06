@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <QMainWindow>
 #include <QInputDialog>
+#include <QQueue>
+
 #include "cellWidget.h"
 #include "gameviewmodel.h"
 #include "loadconfigdialog.h"
@@ -23,6 +25,7 @@ public:
     void makeBoard();
     void generateRandomStartingPattern();
     bool nextPatternConditionsMet();
+    int chooseNextPattern();
     void chooseNextColor();
 
     QString interpolateColor(QColor color1, QColor color2, float t);
@@ -36,7 +39,8 @@ private:
     int ROWS = 30;
     int COLS = ROWS + (ROWS / 2);
     QVector<std::function<void()>> patternGenerators;
-    int currentColorIndex;
+    QQueue<int> bannedColorQueue;
+    QQueue<int> bannedPatternQueue;
 
 public slots:
     void toggleAlive(CellWidget *cell); // only for player's toggle
